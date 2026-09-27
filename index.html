@@ -1,0 +1,1240 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Jayanth portfolio. Have text here.">
+  <link rel="icon" href="data:,">
+  <title>jayanth</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #f5f5f3;
+      --ink: #111111;
+      --muted: #6c6c68;
+      --line: rgba(17,17,17,.18);
+      --accent: #2c63df;
+      --max: 1440px;
+      --nav-height: 62px;
+      --grid-column-size: 25vw;
+      --grid-row-size: 132px;
+      --grid-plane-overscan: 100vh;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; background: var(--paper); color: var(--ink); font-family: "Helvetica Neue", Arial, sans-serif; overflow-x: hidden; }
+    a { color: inherit; text-decoration: none; }
+    button { font: inherit; }
+    main { width: 100%; max-width: 100%; overflow-x: hidden; }
+    .shell { width: min(calc(100% - 40px), var(--max)); margin: 0 auto; }
+    .grid-paper { background-color: var(--paper); background-image: linear-gradient(to right, var(--line) 1px, transparent 1px), linear-gradient(to bottom, var(--line) 1px, transparent 1px); background-size: var(--grid-column-size) 100%, 100% var(--grid-row-size); background-position: 0 0; }
+    .nav { position: relative; z-index: 8; display: grid; grid-template-columns: repeat(4, 1fr); align-items: center; width: min(calc(100% - 40px), var(--max)); height: 62px; margin: 0 auto; border-bottom: 1px solid var(--line); font-size: 10px; letter-spacing: .02em; }
+    .nav-brand { font-weight: 700; }
+    .nav-links { grid-column: 2 / span 2; display: flex; justify-content: center; gap: clamp(22px, 4vw, 64px); }
+    .nav-links a, .nav-status { transition: color .25s ease; }
+    .nav-links a:hover, .nav-status:hover { color: var(--accent); }
+    .nav-actions { grid-column: 4; display: flex; align-items: center; justify-self: end; gap: clamp(14px, 2vw, 28px); }
+    .nav-status { border-bottom: 1px solid currentColor; padding-bottom: 3px; }
+    .hero { position: relative; overflow: clip; min-height: 100dvh; margin-top: calc(0px - var(--nav-height)); padding: calc(38px + var(--nav-height)) 0 32px; background: var(--paper); }
+    .hero-grid-plane { position: absolute; z-index: 0; top: calc(0px - var(--grid-plane-overscan)); right: auto; bottom: auto; left: 50%; width: 100vw; height: calc(100dvh + var(--grid-plane-overscan) + var(--grid-plane-overscan)); margin-left: -50vw; pointer-events: none; background-image: linear-gradient(to right, var(--line) 1px, transparent 1px), linear-gradient(to bottom, var(--line) 1px, transparent 1px); background-size: var(--grid-column-size) 100%, 100% var(--grid-row-size); background-position: 0 0, 0 var(--grid-plane-overscan); will-change: transform; }
+    .hero.is-scene-pinned { overflow: visible; }
+    .hero.is-scene-pinned .hero-grid-plane { background-color: var(--paper); }
+    .hero-star-field { position: absolute; z-index: 3; top: 0; left: 50%; width: 100vw; height: 100dvh; overflow: hidden; transform: translateX(-50%); color: var(--ink); pointer-events: none; }
+    .hero-star-mark { position: absolute; display: grid; width: var(--mark-size); height: var(--mark-size); place-items: center; color: inherit; opacity: 0; visibility: hidden; transform-origin: center; will-change: transform, opacity; transition: filter .45s ease; }
+    .hero-star-mark svg { display: block; width: 100%; height: 100%; overflow: visible; fill: none; stroke: currentColor; stroke-width: 1.1; stroke-linecap: round; stroke-linejoin: round; }
+    .hero-star-mark.dot svg circle { fill: currentColor; stroke: none; }
+    .hero-lockup { position: relative; z-index: 4; width: 100%; overflow: visible; white-space: nowrap; font-size: clamp(5.2rem, 14.2vw, 13.2rem); line-height: .78; letter-spacing: -.11em; font-weight: 800; }
+    .hero-lockup .soft { font-family: Georgia, "Times New Roman", serif; font-weight: 400; font-style: italic; letter-spacing: -.14em; }
+    .hero-lockup .blue { color: var(--accent); }
+    .hero-lockup .letter { display: inline-block; transform: translateY(120%); opacity: 0; }
+    .hero-floor { position: absolute; inset: calc(140px + var(--nav-height)) 0 0; }
+    .wind-field { position: absolute; z-index: 8; inset: 0; overflow: visible; pointer-events: none; }
+    .wind-particle { position: absolute; left: var(--air-x); top: var(--air-y); display: block; width: 2px; height: 2px; border-radius: 50%; background: var(--muted); opacity: 0; will-change: transform, opacity; }
+    .wind-particle:nth-child(3n) { width: 1px; height: 1px; }
+    .wind-particle:nth-child(4n) { width: 3px; height: 1px; border-radius: 100%; }
+    .hero-note { position: absolute; z-index: 11; max-width: 180px; font-size: 11px; line-height: 1.35; }
+    .hero-note.right { top: auto; right: 5%; bottom: 17%; display: grid; justify-items: start; gap: 8px; max-width: 28vw; }
+    .hero-title-note { position: absolute; z-index: 8; top: -.5em; left: 4%; color: var(--ink); font-size: clamp(16px, 1.5vw, 22px); line-height: 1; font-weight: 700; letter-spacing: .085em; white-space: nowrap; }
+    .hero-note.right { font-size: 11px; line-height: 1.1; font-weight: 600; letter-spacing: 0; white-space: normal; }
+    .hero-note-prefix { display: block; color: var(--accent); font: 700 10px/1 monospace; letter-spacing: .13em; text-transform: uppercase; }
+    .hero-note-role { display: grid; justify-items: start; gap: 1px; color: var(--ink); font-size: clamp(26px, 3vw, 42px); font-weight: 700; line-height: .88; letter-spacing: -.075em; text-transform: none; will-change: transform, filter, opacity; }
+    .hero-role-line { display: block; }
+    .hero-note-rule { display: block; width: clamp(34px, 4.2vw, 58px); height: 2px; margin-top: 6px; background: var(--accent); transform: scaleX(0); transform-origin: left center; }
+    .hero-cloud { position: absolute; z-index: 9; display: block; color: var(--ink); opacity: 0; visibility: hidden; filter: blur(12px); pointer-events: none; transform-origin: center; will-change: transform, filter, opacity; }
+    .hero-cloud svg { display: block; width: 100%; height: auto; overflow: visible; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+    .hero-cloud path.secondary-line { opacity: .58; stroke-width: 1.25; }
+    .hero-cloud path.sketch-mark { opacity: .62; stroke-width: 1.3; }
+    .hero-cloud-near { top: 38%; left: 55%; width: clamp(280px, 33vw, 470px); }
+    .hero-cloud-middle { top: 56%; left: 4%; width: clamp(230px, 26vw, 370px); }
+    .hero-cloud-far { top: 8%; right: 3%; width: clamp(205px, 22vw, 320px); }
+    .placeholder-art { position: absolute; z-index: 10; top: auto; right: 0; bottom: 0; left: 0; margin-inline: auto; width: min(81vw, 880px, calc((100dvh - var(--nav-height)) * .7823)); aspect-ratio: 640 / 720; display: grid; place-items: center; overflow: visible; background: transparent; }
+    .avatar-atmosphere { position: absolute; z-index: 0; inset: 10% -13% 0; pointer-events: none; background: radial-gradient(ellipse at 50% 50%, color-mix(in srgb, var(--accent) 12%, transparent) 0%, color-mix(in srgb, var(--accent) 5%, transparent) 38%, transparent 73%); filter: blur(22px); opacity: .82; transform: scale(.9, .84); }
+    .avatar-portrait { position: absolute; z-index: 1; inset: 0; }
+    .avatar-fallback, .avatar-canvas { position: absolute; z-index: 1; inset: 0; display: block; width: 100%; height: 100%; object-fit: contain; image-rendering: auto; filter: drop-shadow(0 18px 21px color-mix(in srgb, var(--ink) 14%, transparent)); }
+    .avatar-canvas { opacity: 0; }
+    .placeholder-art.is-ready .avatar-canvas { opacity: 1; }
+    .placeholder-art.is-ready .avatar-fallback { opacity: 0; }
+    .hero-engraving { position: absolute; z-index: 1; left: 1.5%; bottom: 2.2%; width: clamp(150px, 16vw, 220px); color: var(--muted); opacity: .32; pointer-events: none; }
+    .hero-engraving svg { display: block; width: 100%; height: auto; overflow: visible; fill: none; stroke: currentColor; stroke-width: .8; stroke-linecap: round; stroke-linejoin: round; }
+    .hero-engraving .engraving-hatch { stroke-width: .58; opacity: .72; }
+    .hero-foot { position: absolute; right: 0; bottom: 5px; font: 10px monospace; color: var(--muted); }
+    .section { padding: clamp(150px, 20vw, 290px) 0; }
+    .section-title { margin-bottom: 54px; font-size: clamp(3rem, 6vw, 6.8rem); line-height: .82; letter-spacing: -.11em; }
+    .section-title .italic { font-family: Georgia, serif; font-style: italic; font-weight: 400; }
+    .about-chapter { position: relative; height: 100svh; min-height: 620px; overflow: hidden; background: transparent; }
+    .about-canvas { position: relative; width: min(100%, var(--max)); height: 100%; margin-inline: auto; }
+    .about-photo { position: absolute; z-index: 2; top: 50%; left: clamp(28px, 6vw, 92px); width: min(clamp(280px, 31vw, 420px), calc((100svh - 132px) * .889)); aspect-ratio: 527 / 593; margin: 0; transform: translateY(-50%); }
+    .about-photo img { display: block; width: 100%; height: 100%; object-fit: contain; object-position: center; transition: filter .45s ease; }
+    .about-rail { position: absolute; top: 0; left: 40%; width: 141%; height: 100%; will-change: transform; }
+    .about-copy-panel, .experience-panel { position: absolute; top: 50%; transform: translateY(-50%); }
+    .about-copy-panel { left: 0; width: 41%; }
+    .experience-panel { left: 86%; width: 39%; }
+    .about-eyebrow { margin: 0 0 34px; font: 650 clamp(13px, 1.15vw, 16px)/1.2 "Helvetica Neue", Arial, sans-serif; letter-spacing: .015em; }
+    .about-quote { margin: 0; font-size: clamp(2rem, 2.75vw, 2.8rem); line-height: 1.04; letter-spacing: -.065em; font-weight: 650; }
+    .about-study { margin: 36px 0 0; color: var(--accent); font: 600 12px/1.5 monospace; letter-spacing: .025em; }
+    .experience-header { display: flex; align-items: flex-end; justify-content: space-between; gap: 22px; margin-bottom: 22px; }
+    .experience-eyebrow { max-width: 11ch; margin: 0; font-size: clamp(2.3rem, 4vw, 3.65rem); line-height: .88; letter-spacing: -.075em; font-weight: 700; }
+    .experience-practice { width: min(42%, 190px); padding-left: 13px; border-left: 1px solid var(--accent); }
+    .experience-practice-label { margin: 0 0 7px; color: var(--accent); font: 9px/1.2 monospace; letter-spacing: .08em; text-transform: uppercase; }
+    .experience-practice-copy { margin: 0; font-size: clamp(.82rem, 1.15vw, 1rem); line-height: 1.2; letter-spacing: -.025em; font-weight: 500; }
+    .experience-map { position: relative; height: 354px; margin-top: 0; }
+    .experience-line { position: absolute; display: block; background: var(--ink); transform-origin: left center; }
+    .experience-line-top { top: 20px; left: 0; width: 25%; height: 2px; }
+    .experience-marker { position: absolute; display: block; width: 9px; height: 9px; border-radius: 50%; background: var(--accent); }
+    .experience-marker-top { top: 16px; left: calc(25% - 3px); }
+    .experience-line-stem { top: 24px; left: 25%; width: 2px; height: 284px; transform-origin: top center; background: var(--accent); opacity: .78; }
+    .experience-entry { position: absolute; top: 69px; left: 33%; display: grid; grid-template-columns: 78px minmax(0, 1fr); align-items: center; gap: 17px; width: 67%; }
+    .experience-logo { display: block; width: 78px; height: 72px; object-fit: contain; mix-blend-mode: multiply; }
+    .experience-copy { min-width: 0; }
+    .experience-company { margin: 0 0 9px; font: 10px/1.4 monospace; letter-spacing: .055em; }
+    .experience-role { margin: 0; font-size: clamp(1.45rem, 2.2vw, 2rem); line-height: .98; letter-spacing: -.06em; font-weight: 600; }
+    .experience-dates { margin: 10px 0 0; color: var(--muted); font: 10px/1.2 monospace; }
+    .experience-marker-bottom { top: 305px; left: calc(25% - 3px); }
+    .experience-closing { position: absolute; top: 321px; left: 33%; margin: 0; color: var(--muted); font: 10px/1.2 monospace; letter-spacing: .06em; }
+    .about-anchor { position: absolute; top: 0; left: 0; width: 1px; height: 1px; }
+    .bring-section { position: relative; padding: clamp(118px, 14vw, 194px) 0 clamp(140px, 16vw, 224px); }
+    .bring-head { position: relative; z-index: 1; display: flex; align-items: end; justify-content: space-between; gap: 32px; margin-bottom: clamp(42px, 6vw, 78px); }
+    .bring-title { max-width: none; margin: 0; font-size: clamp(3.4rem, 9vw, 9rem); line-height: .82; letter-spacing: -.105em; font-weight: 800; }
+    .bring-title-line { display: block; overflow: hidden; }
+    .bring-title-line span { display: block; will-change: transform; }
+    .bring-title-line.accent { color: var(--accent); }
+    .bring-intro { max-width: 18ch; margin: 0 1.5% 8px 0; color: var(--ink); font: 11px/1.5 monospace; }
+    .skills-stage { position: relative; min-height: clamp(700px, 62vw, 900px); isolation: isolate; }
+    .skills-node { position: absolute; top: var(--node-y); left: var(--node-x); z-index: 1; transform: translate(-50%, -50%); }
+    .skills-node:nth-child(1) { --node-x: 72%; --node-y: 12%; }
+    .skills-node:nth-child(2) { --node-x: 28%; --node-y: 32%; }
+    .skills-node:nth-child(3) { --node-x: 54%; --node-y: 49%; }
+    .skills-node:nth-child(4) { --node-x: 11%; --node-y: 60%; }
+    .skills-node:nth-child(5) { --node-x: 90%; --node-y: 30%; }
+    .skills-node:nth-child(6) { --node-x: 77%; --node-y: 87%; }
+    .skills-node:nth-child(7) { --node-x: 91%; --node-y: 67%; }
+    .skills-node:nth-child(8) { --node-x: 42%; --node-y: 18%; }
+    .skills-node:nth-child(9) { --node-x: 52%; --node-y: 81%; }
+    .skills-node:nth-child(10) { --node-x: 11%; --node-y: 86%; }
+    .skills-node.is-active { z-index: 5; }
+    .skills-node-motion, .skills-node-reaction, .skills-node-kick { display: block; }
+    .skills-node-trigger { display: inline-flex; align-items: center; gap: 12px; padding: 10px 9px; border: 0; background: transparent; color: var(--ink); text-align: left; cursor: pointer; }
+    .skills-node-trigger:hover .skills-name, .skills-node-trigger[aria-expanded="true"] .skills-name { color: var(--node-accent); }
+    .skills-node-trigger:focus-visible { outline: 1px solid var(--node-accent); outline-offset: 3px; }
+    .skills-mark { display: grid; width: 34px; height: 34px; place-items: center; color: var(--node-accent); }
+    .skills-mark svg { display: block; width: 31px; height: 31px; overflow: visible; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+    .skills-name { color: var(--ink); font-size: clamp(13px, 1.1vw, 15px); letter-spacing: .06em; font-weight: 750; transition: color .2s ease; white-space: nowrap; }
+    .skills-node:nth-child(3) .skills-name, .skills-node:nth-child(9) .skills-name { font-size: clamp(15px, 1.32vw, 18px); }
+    .skills-node:nth-child(5) .skills-name { font-size: clamp(18px, 1.7vw, 23px); letter-spacing: .02em; }
+    .skills-constellation { position: absolute; inset: 0; z-index: 3; overflow: visible; pointer-events: none; }
+    .skills-branches { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+    .skills-branch { fill: none; stroke: var(--branch-color, var(--accent)); stroke-width: 1; stroke-linecap: round; stroke-linejoin: round; opacity: .58; vector-effect: non-scaling-stroke; }
+    .skills-leaves { position: absolute; inset: 0; }
+    .skills-leaf { position: absolute; width: max-content; max-width: min(190px, 38vw); color: var(--leaf-color, var(--ink)); font-size: clamp(11px, 1.08vw, 14px); line-height: 1.2; letter-spacing: -.02em; white-space: normal; will-change: transform, opacity, filter; }
+    .skills-leaf::before { content: ""; display: inline-block; width: 4px; height: 4px; margin: 0 8px 2px 0; border-radius: 50%; background: currentColor; }
+    .skills-constellation[hidden] { display: none; }
+    .skills-stage.has-active .skills-node:not(.is-active) { opacity: .24; }
+    .skills-stage.has-active .skills-node:not(.is-active) .skills-node-trigger { pointer-events: none; }
+    .skills-note { position: absolute; right: 1%; bottom: 1%; color: var(--ink); font: 9px/1.4 monospace; letter-spacing: .06em; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+    .contact { position: relative; display: flex; min-height: min(88svh, 960px); flex-direction: column; justify-content: space-between; padding: clamp(112px, 14vw, 198px) 0 28px; border-top: 1px solid var(--line); }
+    .contact-main { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(350px, .9fr); align-items: start; gap: clamp(40px, 8vw, 120px); flex: 1; }
+    .contact-heading { margin: 0; color: var(--ink); font-size: clamp(4.5rem, 9vw, 9rem); font-weight: 750; line-height: .82; letter-spacing: -.105em; white-space: nowrap; }
+    .contact-heading-period { color: var(--accent); }
+    .contact-doodle { display: block; width: clamp(118px, 15vw, 198px); height: 18px; margin-top: 24px; overflow: visible; fill: none; stroke: var(--accent); stroke-width: 1.4; stroke-linecap: round; }
+    .contact-list { margin: 6px 0 0; padding: 0; border-top: 1px solid var(--line); list-style: none; }
+    .contact-row { display: grid; grid-template-columns: 22px 78px minmax(0, 1fr) 18px; align-items: center; gap: 12px; min-height: 76px; border-bottom: 1px solid var(--line); }
+    .contact-symbol { display: grid; width: 20px; height: 20px; place-items: center; color: var(--accent); transform-origin: center; }
+    .contact-symbol svg { display: block; width: 19px; height: 19px; overflow: visible; fill: none; stroke: currentColor; stroke-width: 1.35; stroke-linecap: round; stroke-linejoin: round; }
+    .contact-symbol-linkedin svg { stroke-width: 1.1; }
+    .contact-symbol-linkedin .linkedin-mark { fill: currentColor; stroke: none; }
+    .contact-label { color: var(--muted); font: 9px/1.2 monospace; letter-spacing: .1em; }
+    .contact-link { display: block; min-width: 0; padding: 18px 0; color: var(--ink); font-size: clamp(13px, 1.15vw, 16px); line-height: 1.35; font-weight: 500; overflow-wrap: anywhere; transition: color .22s ease; }
+    .contact-link:hover { color: var(--accent); }
+    .contact-link:focus-visible, .contact-button:focus-visible { outline: 1px solid var(--accent); outline-offset: 4px; }
+    .contact-link-mark { justify-self: end; color: var(--muted); font-size: 15px; transition: color .22s ease, transform .22s ease; }
+    .contact-link:hover + .contact-link-mark { color: var(--accent); transform: translate(2px, -2px); }
+    .contact-resume { margin-top: 30px; }
+    .contact-button { display: inline-flex; align-items: center; justify-content: center; gap: 18px; min-height: 52px; padding: 0 20px; border: 1px solid var(--ink); background: var(--ink); color: var(--paper); font-size: 10px; font-weight: 650; letter-spacing: .09em; text-transform: uppercase; transition: transform .25s ease, background .25s ease, color .25s ease, border-color .25s ease; }
+    .contact-button:hover { transform: translateY(-2px); background: var(--accent); color: var(--paper); border-color: var(--accent); }
+    .contact-button:active { transform: translateY(0); }
+    .contact-button-mark { display: inline-block; font-size: 16px; line-height: 1; transition: transform .25s ease; }
+    .contact-button:hover .contact-button-mark { transform: translate(2px, -2px); }
+    .contact-footerline { display: flex; align-items: center; justify-content: flex-end; gap: 20px; margin-top: clamp(64px, 11vw, 148px); padding-top: 15px; border-top: 1px solid var(--line); }
+    .contact-status { display: inline-flex; align-items: center; gap: 10px; color: var(--ink); font-size: 11px; font-weight: 650; letter-spacing: .08em; }
+    .contact-status-mark { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+    .projects-section { position: relative; height: 100svh; min-height: min(100svh, 680px); border-top: 1px solid var(--line); }
+    .projects-frame { position: absolute; inset: 0; overflow: hidden; }
+    .projects-world { position: absolute; inset: 0 auto 0 0; width: 355vw; height: 100%; }
+    .projects-background, .projects-desk-plane, .projects-foreground { position: absolute; inset: 0 auto 0 0; width: 355vw; height: 100%; will-change: transform; }
+    .projects-background { z-index: 1; }
+    .projects-desk-plane { z-index: 2; }
+    .projects-foreground { z-index: 3; }
+    .projects-intro { position: absolute; top: 15%; left: 4vw; width: 62vw; max-width: 920px; }
+    .projects-title { margin: 0; color: var(--ink); font-size: clamp(4rem, 8.6vw, 8rem); font-weight: 800; line-height: .8; letter-spacing: -.105em; }
+    .projects-title span { display: block; color: var(--accent); }
+    .projects-intro-line { width: 94px; height: 2px; margin: 25px 0 16px; background: var(--accent); transform-origin: left; }
+    .projects-intro-copy { margin: 0; color: var(--muted); font: 11px/1.5 monospace; letter-spacing: .025em; }
+    .projects-desk { position: absolute; left: 58vw; bottom: 0; display: block; width: min(190vw, 350svh); height: auto; max-width: none; overflow: visible; color: var(--ink); }
+    .projects-desk-desktop { z-index: 1; }
+    .projects-desk-mobile { display: none; }
+    .desk-ink { fill: none; stroke: currentColor; stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+    .desk-detail { stroke-width: 2.2; opacity: .66; }
+    .desk-accent { stroke: var(--accent); }
+    .desk-fill { fill: var(--paper); stroke: currentColor; }
+    .desk-solid { fill: var(--ink); stroke: var(--ink); }
+    .projects-person { transform-box: fill-box; transform-origin: center; }
+    .project-stop { position: absolute; display: grid; grid-template-columns: clamp(112px, 14vw, 196px) minmax(230px, 1fr); align-items: center; gap: clamp(22px, 3vw, 48px); width: min(62vw, 820px); color: var(--ink); visibility: hidden; opacity: 0; will-change: transform, opacity; }
+    .project-stop-coromandel { top: 6%; left: 124vw; }
+    .project-stop-ev { top: 17%; left: 211vw; }
+    .project-stop-lab { top: 20%; left: 291vw; width: min(58vw, 760px); grid-template-columns: 100px minmax(0, 1fr); }
+    .project-art { display: block; width: 100%; height: auto; overflow: visible; color: var(--ink); }
+    .project-art path, .project-art line, .project-art rect, .project-art circle, .project-art polyline { fill: none; stroke: currentColor; stroke-width: 1.65; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+    .project-art .project-paper { fill: var(--paper); fill-opacity: .72; }
+    .project-art .project-blue { stroke: var(--accent); }
+    .project-art .project-blue-fill { fill: var(--accent); stroke: var(--accent); }
+    .project-art .project-ink-fill { fill: var(--ink); stroke: var(--ink); }
+    .project-copy { min-width: 0; }
+    .project-name { margin: 0 0 13px; color: var(--ink); font-size: clamp(1.45rem, 2.2vw, 2rem); font-weight: 750; line-height: .9; letter-spacing: -.065em; }
+    .project-detail { margin: 0; color: var(--muted); font: 10px/1.6 monospace; letter-spacing: .025em; }
+    .project-summary { max-width: 42ch; margin: 13px 0 0; color: var(--ink); font-size: 12px; line-height: 1.4; letter-spacing: -.015em; }
+    .project-stop-coromandel .project-name { max-width: 10ch; font-size: clamp(1.25rem, 1.9vw, 1.75rem); line-height: .98; letter-spacing: -.045em; }
+    .project-stop-coromandel .project-copy { padding: 8px 0 12px; }
+    .project-stop-ev .project-copy { max-width: 38ch; }
+    .project-stop-ev .project-detail { margin-top: 2px; }
+    .project-stop-ev .project-summary { margin-top: 12px; }
+    .project-process { position: relative; display: grid; gap: 7px; margin: 16px 0 0; padding: 0 0 0 15px; list-style: none; }
+    .project-process::before { position: absolute; top: 4px; bottom: 4px; left: 3px; width: 1px; background: var(--line); content: ""; }
+    .project-process li { position: relative; min-height: 12px; color: var(--ink); font: 9px/1.3 monospace; letter-spacing: .04em; }
+    .project-process li::before { position: absolute; top: 3px; left: -14px; width: 5px; height: 5px; border: 1px solid var(--accent); border-radius: 50%; background: var(--paper); content: ""; }
+    .project-process small { display: block; margin-top: 3px; color: var(--muted); font: inherit; letter-spacing: 0; }
+    .project-action { display: inline-flex; align-items: center; gap: 10px; margin-top: 23px; padding: 0 0 7px; border: 0; border-bottom: 1px solid var(--accent); background: transparent; color: var(--ink); font: 700 10px/1.2 monospace; letter-spacing: .07em; text-decoration: none; cursor: pointer; transition: color .2s ease, border-color .2s ease; }
+    .project-action:hover { color: var(--accent); border-color: var(--ink); }
+    .project-action:focus-visible { outline: 1px solid var(--accent); outline-offset: 5px; }
+    .project-action svg { display: block; width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+    .projects-lab-copy { max-width: 410px; }
+    .projects-lab-kicker { margin: 0 0 17px; color: var(--accent); font: 700 10px/1.2 monospace; letter-spacing: .12em; }
+    .projects-lab-question { margin: 0 0 13px; color: var(--ink); font-size: clamp(1.45rem, 2.25vw, 2.1rem); font-weight: 700; line-height: .95; letter-spacing: -.06em; }
+    .projects-lab-copyline { margin: 0; color: var(--muted); font: 10px/1.6 monospace; letter-spacing: .035em; }
+    .projects-lab-link { margin-top: 22px; }
+    @media (max-width: 820px) {
+      .projects-section { height: auto; min-height: 0; padding: 112px 0 128px; }
+      .projects-frame { position: relative; inset: auto; overflow: visible; }
+      .projects-world, .projects-background, .projects-desk-plane, .projects-foreground { position: relative; inset: auto; width: 100%; height: auto; transform: none !important; }
+      .projects-world { display: flex; flex-direction: column; gap: 78px; width: min(calc(100% - 28px), 690px); margin-inline: auto; }
+      .projects-background { display: contents; }
+      .projects-desk-plane { display: contents; }
+      .projects-foreground { display: contents; }
+      .projects-intro { position: relative; top: auto; left: auto; width: 100%; max-width: none; }
+      .projects-title { font-size: clamp(3.5rem, 12.6vw, 6.3rem); }
+      .projects-intro-line { margin: 22px 0 13px; }
+      .projects-desk-desktop { display: none; }
+      .projects-desk-mobile { position: relative; left: auto; bottom: auto; display: block; width: 100%; height: auto; margin: -18px 0 -24px; }
+      .project-stop, .project-stop-coromandel, .project-stop-ev, .project-stop-lab { position: relative; top: auto; left: auto; display: grid; grid-template-columns: minmax(88px, 24vw) minmax(0, 1fr); gap: 19px; width: 100%; max-width: 560px; margin-left: auto; opacity: 1; visibility: visible; }
+      .project-stop-ev { align-self: flex-start; }
+      .project-stop-lab { grid-template-columns: 74px minmax(0, 1fr); margin-top: 12px; }
+      .project-name { font-size: clamp(1.3rem, 5.5vw, 1.75rem); }
+      .project-summary { font-size: 11px; }
+      .project-process { gap: 8px; margin-top: 14px; }
+      .project-process li { font-size: 8px; }
+      .projects-lab-question { font-size: clamp(1.3rem, 5.6vw, 1.8rem); }
+      .project-action { margin-top: 18px; }
+    }
+    @media (prefers-reduced-motion: reduce) and (min-width: 821px) {
+      .projects-section { height: auto; min-height: 0; padding: 112px 0 128px; }
+      .projects-frame { position: relative; inset: auto; overflow: visible; }
+      .projects-world { position: relative; display: flex; flex-direction: column; gap: 78px; width: min(calc(100% - 40px), var(--max)); height: auto; margin-inline: auto; }
+      .projects-background, .projects-desk-plane, .projects-foreground { position: relative; inset: auto; display: contents; width: 100%; height: auto; transform: none !important; }
+      .projects-intro { position: relative; top: auto; left: auto; width: 100%; max-width: none; opacity: 1; visibility: visible; transform: none; }
+      .projects-desk-desktop { display: none; }
+      .projects-desk-mobile { position: relative; left: auto; bottom: auto; display: block; width: 100%; height: auto; margin: -18px 0 -24px; }
+      .project-stop, .project-stop-coromandel, .project-stop-ev, .project-stop-lab { position: relative; top: auto; left: auto; display: grid; grid-template-columns: minmax(112px, 20vw) minmax(0, 1fr); gap: 28px; width: 100%; max-width: 760px; margin: 0 auto; opacity: 1; visibility: visible; transform: none; }
+    }
+    @media (max-width: 900px) {
+      .contact { min-height: 0; padding: clamp(112px, 14vw, 152px) 0 24px; }
+      .contact-main { grid-template-columns: 1fr; gap: clamp(50px, 8vw, 82px); }
+      .contact-heading { font-size: clamp(4.2rem, 10vw, 6.8rem); }
+    }
+    @media (max-width: 820px) {
+      .shell, .nav { width: calc(100% - 28px); }
+      .nav { grid-template-columns: auto 1fr auto; }
+      .nav-links { grid-column: 2; justify-content: flex-end; gap: 18px; }
+      .nav-actions { grid-column: 3; margin-left: 12px; }
+      .nav-status { display: none; }
+      .hero { min-height: 100dvh; padding-top: calc(50px + var(--nav-height)); }
+      .hero-lockup { font-size: clamp(4.6rem, 16vw, 8.4rem); white-space: normal; }
+      .hero-floor { inset: calc(270px + var(--nav-height)) 0 0; }
+      .placeholder-art { width: min(calc((100vw - 28px) * .88), calc((100dvh - var(--nav-height)) * .7823)); }
+      .hero-cloud-near { top: 38%; left: 48%; width: 68vw; }
+      .hero-cloud-middle { top: 53%; left: -4%; width: 64vw; }
+      .hero-cloud-far { top: 9%; right: -3%; width: 58vw; }
+      .hero-note.right { right: 0; bottom: 15%; max-width: 31vw; }
+      .hero-engraving { left: 0; bottom: 2%; width: clamp(130px, 28vw, 180px); }
+      .bring-intro { max-width: 15ch; }
+      .skills-stage { min-height: 760px; }
+      .skills-mark { width: 26px; height: 26px; }
+      .skills-mark svg { width: 24px; height: 24px; }
+    }
+    @media (max-width: 520px) {
+      .nav-links { gap: 14px; font-size: 9px; }
+      .hero-lockup { font-size: 21vw; }
+      .hero-floor { inset: calc(230px + var(--nav-height)) 0 0; }
+      .placeholder-art { width: min(calc((100vw - 18px) * .88), calc((100dvh - var(--nav-height)) * .7823)); }
+      .hero-cloud-near { width: 76vw; }
+      .hero-cloud-middle { width: 68vw; }
+      .hero-cloud-far { width: 63vw; }
+      .hero-note { max-width: 120px; font-size: 9px; }
+      .hero-note.right { font-size: 10px; }
+      .hero-note-role { font-size: clamp(23px, 4.8vw, 35px); }
+      .hero-title-note { left: 2%; font-size: 15px; }
+      .experience-header { display: block; margin-bottom: 18px; }
+      .experience-eyebrow { font-size: clamp(2.2rem, 9vw, 3rem); }
+      .experience-practice { width: min(100%, 220px); margin-top: 18px; }
+      .contact { min-height: 0; padding: 112px 0 22px; }
+      .contact-main { grid-template-columns: 1fr; gap: 48px; }
+      .contact-heading { font-size: clamp(3.65rem, 14vw, 5.5rem); }
+      .contact-doodle { margin-top: 19px; }
+      .contact-list { margin-top: 0; }
+      .contact-row { grid-template-columns: 20px 59px minmax(0, 1fr) 16px; gap: 9px; min-height: 72px; }
+      .contact-link { font-size: 13px; }
+      .contact-resume { margin-top: 24px; }
+      .contact-footerline { margin-top: 76px; }
+      .bring-section { padding: 110px 0 132px; }
+      .bring-head { display: block; margin-bottom: 36px; }
+      .bring-title { font-size: clamp(3.35rem, 15.6vw, 5.2rem); }
+      .bring-intro { margin: 20px 0 0 2px; }
+      .skills-stage { min-height: 850px; }
+      .skills-node-trigger { gap: 7px; padding: 7px 3px; }
+      .skills-name { font-size: 11px; letter-spacing: .045em; }
+      .skills-node:nth-child(3) .skills-name, .skills-node:nth-child(9) .skills-name { font-size: 12px; }
+      .skills-node:nth-child(5) .skills-name { font-size: 15px; }
+      .skills-mark { width: 25px; height: 27px; }
+      .skills-mark svg { width: 25px; height: 25px; }
+      .skills-leaf { max-width: min(152px, 45vw); font-size: 11px; }
+      .skills-note { right: 0; bottom: -5px; font-size: 8px; }
+      .skills-node:nth-child(1) { --node-x: 77%; --node-y: 8%; }
+      .skills-node:nth-child(2) { --node-x: 29%; --node-y: 31%; }
+      .skills-node:nth-child(3) { --node-x: 69%; --node-y: 51%; }
+      .skills-node:nth-child(4) { --node-x: 19%; --node-y: 39%; }
+      .skills-node:nth-child(5) { --node-x: 83%; --node-y: 27%; }
+      .skills-node:nth-child(6) { --node-x: 40%; --node-y: 87%; }
+      .skills-node:nth-child(7) { --node-x: 77%; --node-y: 66%; }
+      .skills-node:nth-child(8) { --node-x: 25%; --node-y: 15%; }
+      .skills-node:nth-child(9) { --node-x: 64%; --node-y: 77%; }
+      .skills-node:nth-child(10) { --node-x: 36%; --node-y: 94%; }
+    }
+    @media (max-width: 820px) {
+      .about-chapter { height: auto; min-height: 0; overflow: visible; padding: clamp(112px, 16vw, 180px) 0; }
+      .about-canvas { display: grid; grid-template-columns: 1fr; gap: clamp(64px, 12vw, 112px); width: min(calc(100% - 40px), 680px); height: auto; }
+      .about-photo { position: relative; top: auto; left: auto; width: min(68vw, 360px, calc((100svh - 132px) * .889)); margin-inline: auto; transform: none; }
+      .about-rail { position: relative; top: auto; left: auto; display: grid; gap: clamp(88px, 14vw, 136px); width: 100%; height: auto; }
+      .about-copy-panel, .experience-panel { position: relative; top: auto; left: auto; width: min(100%, 620px); margin: 0 auto; transform: none; }
+      .about-quote { max-width: 19ch; font-size: clamp(2rem, 7vw, 3.25rem); }
+      .experience-panel { width: min(100%, 620px); }
+      .experience-map { height: 354px; }
+      .experience-header { align-items: flex-start; }
+      .experience-eyebrow { font-size: clamp(2.35rem, 8vw, 3.25rem); }
+      .experience-practice { width: min(43%, 190px); }
+    }
+    @media (prefers-reduced-motion: reduce) and (min-width: 821px) {
+      .about-chapter { height: auto; min-height: 100svh; overflow: visible; padding: 96px 0; }
+      .about-canvas { display: grid; grid-template-columns: minmax(300px, .8fr) 1.2fr; align-items: center; gap: clamp(48px, 8vw, 120px); width: min(calc(100% - 64px), var(--max)); height: auto; }
+      .about-photo { position: relative; top: auto; left: auto; width: min(100%, 420px, calc(62svh * .889)); transform: none; }
+      .about-rail { position: relative; top: auto; left: auto; display: grid; gap: 72px; width: 100%; height: auto; }
+      .about-copy-panel, .experience-panel { position: relative; top: auto; left: auto; width: 100%; transform: none; }
+    }
+    @media (max-width: 520px) and (max-height: 720px) {
+      .hero-note, .hero-engraving, .hero-foot { display: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body class="grid-paper">
+  <nav class="nav" aria-label="Primary navigation"><a class="nav-brand" href="#top">jayanth</a><div class="nav-links"><a href="#work">Work</a><a href="#about">About</a><a href="#contact">Contact</a></div><div class="nav-actions"><a class="nav-status" href="#contact">Open to work</a></div></nav>
+  <main id="top">
+    <section class="hero shell">
+      <div class="hero-grid-plane" aria-hidden="true"></div>
+      <div class="hero-star-field" data-hero-star-field aria-hidden="true"></div>
+      <h1 class="hero-lockup" aria-label="jayanth"><span class="hero-title-note hero-fade">HEY, I'M</span><span class="letter soft">j</span><span class="letter">a</span><span class="letter">y</span><span class="letter blue">a</span><span class="letter">n</span><span class="letter">t</span><span class="letter">h</span></h1>
+      <div class="hero-floor">
+        <div class="wind-field" aria-hidden="true">
+          <i class="wind-particle" style="--air-x: 37%; --air-y: 68%" data-drift="-11"></i>
+          <i class="wind-particle" style="--air-x: 42%; --air-y: 46%" data-drift="8"></i>
+          <i class="wind-particle" style="--air-x: 46%; --air-y: 79%" data-drift="-7"></i>
+          <i class="wind-particle" style="--air-x: 49%; --air-y: 57%" data-drift="12"></i>
+          <i class="wind-particle" style="--air-x: 53%; --air-y: 73%" data-drift="-9"></i>
+          <i class="wind-particle" style="--air-x: 57%; --air-y: 42%" data-drift="7"></i>
+          <i class="wind-particle" style="--air-x: 61%; --air-y: 63%" data-drift="-12"></i>
+          <i class="wind-particle" style="--air-x: 34%; --air-y: 54%" data-drift="9"></i>
+          <i class="wind-particle" style="--air-x: 65%; --air-y: 77%" data-drift="-8"></i>
+          <i class="wind-particle" style="--air-x: 40%; --air-y: 83%" data-drift="13"></i>
+          <i class="wind-particle" style="--air-x: 59%; --air-y: 51%" data-drift="-10"></i>
+          <i class="wind-particle" style="--air-x: 45%; --air-y: 35%" data-drift="6"></i>
+        </div>
+        <div class="hero-cloud hero-cloud-far" data-hero-cloud="far" aria-hidden="true">
+          <svg viewBox="0 0 300 140">
+            <path d="M24 88c-7-8-2-18 9-22-2-13 9-22 22-21 4-16 22-23 37-14 9-18 31-21 45-8 15-16 39-13 47 6 16-7 34 3 35 18 14 1 22 14 16 26 8 8 4 18-7 21-23 4-47 0-70 3-32 4-69 0-95 4-17 3-34 2-42-3Z"/>
+            <path class="secondary-line" d="M43 67c4-10 14-14 24-11m51-24c10-5 21-3 29 4m36 8c11-4 21 1 24 10M54 91c10 4 17 3 26 2m116 1c10 2 18 1 25-2"/>
+            <path class="sketch-mark" d="M19 81c-5-2-10-1-14 3m251 5c7 1 12-1 17-5m-231 13c-4 2-8 2-12 1"/>
+          </svg>
+        </div>
+        <div class="hero-cloud hero-cloud-middle" data-hero-cloud="middle" aria-hidden="true">
+          <svg viewBox="0 0 360 155">
+            <path d="M25 104c-8-10-3-22 11-26-6-14 2-29 18-31 0-18 18-29 35-21 8-23 35-28 52-12 15-19 46-19 59 1 19-11 43 0 44 20 19-1 30 16 22 31 12 11 7 25-8 29-33 8-71 0-108 5-41 5-91 4-114-1-8-2-14-7-11-15Z"/>
+            <path class="secondary-line" d="M51 74c3-13 16-20 29-16m53-29c12-7 27-5 36 3m38 10c13-5 26 2 28 14M45 108c13 4 27 2 38 0m134 2c14 2 28 0 37-4"/>
+            <path class="sketch-mark" d="M18 96c-6-2-11 0-15 5m274 7c8 1 14-2 19-7M50 118c-5 2-10 2-15 0"/>
+          </svg>
+        </div>
+        <div class="hero-cloud hero-cloud-near" data-hero-cloud="near" aria-hidden="true">
+          <svg viewBox="0 0 420 180">
+            <path d="M32 123c-12-8-10-22 4-28-7-17 3-34 22-36-1-20 20-32 39-23 12-25 41-31 60-14 20-22 54-21 68 2 20-9 43 4 43 26 21-1 34 18 24 34 12 12 5 27-13 31-42 8-89-2-136 4-39 5-81 8-106-1-9-3-12-10-5-17Z"/>
+            <path class="secondary-line" d="M56 92c3-15 18-23 32-18m59-34c13-8 31-6 41 4m41 9c14-5 29 3 31 17M44 128c18 5 39 3 55 0m154 2c17 2 32-1 43-6"/>
+            <path class="sketch-mark" d="M24 112c-7-2-13 0-18 5m296 9c9 0 16-4 21-10M60 143c-5 3-11 3-16 1"/>
+          </svg>
+        </div>
+        <div class="placeholder-art" data-avatar-stage role="img" aria-label="Portrait of Jayanth">
+          <div class="avatar-atmosphere" aria-hidden="true"></div>
+          <div class="avatar-portrait hero-fade">
+            <img class="avatar-fallback" src="avatar/frames/vertical/f0070.webp" alt="" width="640" height="720" fetchpriority="high">
+            <canvas class="avatar-canvas" width="640" height="720" aria-hidden="true"></canvas>
+          </div>
+        </div>
+        <p class="hero-note right hero-fade"><span class="hero-note-prefix">A</span><span class="hero-note-role"><span class="hero-role-line">Management</span><span class="hero-role-line">student</span><span class="hero-note-rule" data-hero-role-rule aria-hidden="true"></span></span></p>
+        <div class="hero-engraving hero-fade" aria-hidden="true">
+          <svg viewBox="0 0 220 112">
+            <path d="M3 82c21-14 43-16 65-9 16 5 29 14 48 15 25 2 44-13 66-15 13-1 25 2 36 9"/>
+            <path d="M8 92c23-11 42-11 62-4 18 7 30 15 51 14 24-1 41-13 61-16 13-2 24 0 35 6"/>
+            <path d="M28 68c13-9 26-12 39-8m-21-8c8-5 16-7 25-5m78 33c13-8 25-11 38-9m-29-9c9-5 17-7 27-5"/>
+            <path class="engraving-hatch" d="m18 73 7 7m2-11 8 8m3-12 9 8m5-11 9 7m8-8 9 6m68 10 7 7m3-11 8 7m4-12 9 7m4-11 9 6m6-9 8 5"/>
+            <path d="M83 49c7-5 14-8 22-8m-16-7c6-4 11-6 18-6m-8 29c7-3 13-4 20-3m-7-13c6-3 12-4 18-3"/>
+            <path class="engraving-hatch" d="m91 45 4 5m4-8 4 5m3-8 4 4m-5 14 4 4m8-7 4 4m-5-18 4 4m8-6 4 4"/>
+            <path d="M110 56c2 8 2 14 0 21m-7-14 7 4 8-5m-18 15 10-3 10 3"/>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <section class="about-chapter" id="about" aria-label="About and experience">
+      <span class="about-anchor" id="work" aria-hidden="true"></span>
+      <div class="about-canvas">
+        <figure class="about-photo">
+          <img class="about-photo-image" src="assets/image.png" alt="Hand-drawn portrait of a person with glasses" loading="lazy">
+        </figure>
+        <div class="about-rail" data-about-rail>
+          <article class="about-copy-panel">
+            <h2 class="about-eyebrow">A little about me</h2>
+            <p class="about-quote">"I like understanding how things work,<br>finding where they can work better,<br>and figuring out how the pieces come together."</p>
+            <p class="about-study">Interested in operations and marketing</p>
+          </article>
+          <article class="experience-panel">
+            <header class="experience-header">
+              <h3 class="experience-eyebrow">My work experience</h3>
+              <aside class="experience-practice" data-experience-practice aria-label="Independent creative work">
+                <p class="experience-practice-label">Independent practice</p>
+                <p class="experience-practice-copy">Freelance vibe coder<br>&amp; designer</p>
+              </aside>
+            </header>
+            <div class="experience-map">
+              <span class="experience-line experience-line-top" data-experience-line="top" aria-hidden="true"></span>
+              <span class="experience-marker experience-marker-top" data-experience-marker="top" aria-hidden="true"></span>
+              <div class="experience-entry" data-experience-entry>
+                <img class="experience-logo" src="assets/coromandel%20logo%20.jpeg" alt="Coromandel International logo" width="162" height="148" loading="lazy">
+                <div class="experience-copy">
+                  <p class="experience-company">COROMANDEL INTERNATIONAL</p>
+                  <p class="experience-role">Digital Marketing Intern</p>
+                  <p class="experience-dates">May — June 2026</p>
+                </div>
+              </div>
+              <span class="experience-line experience-line-stem" data-experience-line="stem" aria-hidden="true"></span>
+              <span class="experience-marker experience-marker-bottom" data-experience-marker="bottom" aria-hidden="true"></span>
+            </div>
+            <p class="experience-closing" data-experience-closing>READY FOR WHAT'S NEXT.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="bring-section shell" id="skills" aria-labelledby="bring-title">
+      <header class="bring-head">
+        <h2 class="bring-title" id="bring-title"><span class="bring-title-line"><span data-bring-word>WHAT I BRING</span></span><span class="bring-title-line accent"><span data-bring-word>TO THE DESK</span></span></h2>
+        <p class="bring-intro">A few things I like working with.</p>
+      </header>
+      <div class="skills-stage" data-skills-stage aria-label="Explore capabilities">
+        <div class="skills-nodes" data-skills-nodes></div>
+        <div class="skills-constellation" data-skills-constellation hidden aria-live="polite">
+          <svg class="skills-branches" data-skills-branches aria-hidden="true"></svg>
+          <div class="skills-leaves" data-skills-leaves></div>
+        </div>
+        <p class="skills-note" aria-hidden="true">SELECT A FIELD TO EXPLORE</p>
+      </div>
+      <p class="sr-only" data-skills-status aria-live="polite"></p>
+    </section>
+
+    <section class="projects-section" id="projects" data-projects-section aria-labelledby="projects-title">
+      <div class="projects-frame">
+        <div class="projects-world" data-projects-world>
+          <div class="projects-background" data-projects-background>
+            <header class="projects-intro" data-projects-intro>
+              <h2 class="projects-title" id="projects-title">MY HEARTFELT<span>PROJECTS</span></h2>
+              <div class="projects-intro-line" data-projects-intro-line aria-hidden="true"></div>
+              <p class="projects-intro-copy">This is the desk where I make things.</p>
+            </header>
+          </div>
+
+          <div class="projects-desk-plane" data-projects-desk-plane>
+            <svg class="projects-desk projects-desk-desktop" viewBox="0 0 3600 980" role="img" aria-label="Hand-drawn desk with a person working at a laptop">
+              <g class="desk-ink" data-desk-draw aria-hidden="true">
+                <path d="M68 510c379-13 752 8 1126-2 412-11 791-2 1170-11 318-8 663 1 1084-14"/>
+                <path class="desk-detail" d="M80 523c425-8 764 11 1138 1 419-10 785 2 1162-9 327-9 676-1 1053-12"/>
+                <path d="M92 526c8 28 11 60 8 100m423-103c4 56 2 119-5 187m2450-215c-3 56-1 119 7 183m393-184c-4 60-1 121 9 177"/>
+                <path class="desk-detail" d="M93 626c93 11 271 13 424-1m-1 84c134 13 282 13 420 0m1609-84c101 7 254 9 397-3m-392 87c116 8 250 7 378-4"/>
+                <path d="M14 512c21-8 35-8 54-2m3378-28c41-13 79-14 122-9"/>
+                <path class="desk-detail" d="M812 523 796 850m542-316 13 315m-551-8c46 10 90 10 131 1m268 4c49 9 98 8 143-2"/>
+              </g>
+              <g class="desk-chair desk-ink" data-desk-draw data-desk-chair aria-hidden="true">
+                <path class="desk-detail" d="M424 470 413 303c-2-25 12-39 37-41l73-3c23 0 35 13 37 36l10 175"/>
+                <path d="M432 466c57-8 132-6 194 2l31 29c-66 13-160 13-227 0Z"/>
+                <path class="desk-detail" d="M455 498 443 847m174-337 17 335m-171-3c42 12 92 13 137 2"/>
+                <path class="desk-accent" d="M446 475c57-6 120-4 177 3"/>
+              </g>
+              <g class="projects-person desk-ink" data-project-person>
+                <path class="desk-fill" d="M542 311c39-23 95-25 131 0 28 20 39 56 34 97l-7 60c-42 17-103 19-155 3l-17-62c-10-39-6-76 14-98Z"/>
+                <path class="desk-fill" d="M558 180c-5-42 18-79 57-91 42-13 86 9 100 49 16 45-9 92-49 108-46 18-102-12-108-66Z"/>
+                <path class="desk-solid" d="M559 181c-5-37 12-73 44-88 30-15 72-10 95 14 10 11 17 25 19 41-16-11-31-16-47-16 12 9 21 20 26 34-18-11-35-14-52-10-28 7-48 26-72 38-6 3-10 2-13-1Zm21-55c17-25 40-39 65-42-11 10-17 20-20 31 15-9 30-12 46-10-14 9-23 20-28 32-18-7-38-10-63-11Z"/>
+                <path class="desk-detail" d="M596 279c5 16 5 27 1 37m47-39c-2 16-1 28 5 39"/>
+                <path d="M548 326c30 34 61 62 96 84l42 34 102 30m-138-148c43 26 70 54 91 88l38 28 75 32"/>
+                <path class="desk-detail" d="M780 470h18m-10-5 13 5m-70-3h18m-10-5 13 5"/>
+                <path d="M526 451c-9 42 7 73 49 91l97 40c22 9 41 8 61-1m-108-31c-21 48-31 93-28 137l-42 2m143-105c21 45 39 84 74 108l46 1"/>
+              </g>
+              <g class="desk-ink" data-desk-draw data-desk-objects>
+                <path d="M792 470h170v39H792Z"/>
+                <path class="desk-detail" d="M805 481h143m-126 19h111"/>
+                <path d="M1116 475c-4-19 7-32 27-34 21-2 39 10 40 29l-4 27h-59Z"/>
+                <path class="desk-detail" d="M1124 475h52m-43-25c12 6 22 6 34 0"/>
+                <path d="M1285 503c-3-30 13-49 38-49 24 0 39 19 36 49m-63-3c-11-8-19-18-19-30m82 30c10-8 18-18 18-30"/>
+                <path class="desk-detail" d="M1298 503c8-6 17-7 25-2m28 2c-8-6-17-7-25-2"/>
+                <path d="M1440 483c0-10 9-17 20-17s20 7 20 17v22h-40Z"/>
+                <path class="desk-accent" d="M1447 483c8-4 18-4 26 0"/>
+              </g>
+            </svg>
+
+            <svg class="projects-desk projects-desk-mobile" viewBox="0 0 820 430" role="img" aria-label="Hand-drawn person seated at a desk with a laptop and desk lamp">
+              <g class="desk-ink" data-desk-draw aria-hidden="true">
+                <path d="M37 320c188-7 352 5 535-1 64-2 124-3 196-7m-716 17c225 0 428 7 705-3"/>
+                <path class="desk-detail" d="M96 333 91 416m545-84 5 84"/>
+              </g>
+              <g class="desk-chair desk-ink" data-desk-chair aria-hidden="true">
+                <path class="desk-detail" d="M132 300 125 203c-1-17 8-26 24-27l34-1c15 0 23 9 24 24l6 102"/>
+                <path d="M135 295c34-5 76-4 111 1l17 16c-39 8-92 8-130 0Z"/>
+                <path class="desk-detail" d="M147 312 141 418m99-103 8 103m-98-1c24 7 50 7 77 1"/>
+                <path class="desk-accent" d="M143 299c33-4 69-3 102 1"/>
+              </g>
+              <g class="projects-person desk-ink" data-project-person>
+                <path class="desk-fill" d="M197 187c26-17 64-18 88 0 20 15 27 39 23 69l-5 39c-29 11-69 12-105 2l-11-41c-7-29-4-53 10-69Z"/>
+                <path class="desk-fill" d="M208 94c-3-30 13-55 40-63 29-9 59 6 69 34 11 31-6 63-34 74-32 12-71-8-75-45Z"/>
+                <path class="desk-solid" d="M209 95c-3-26 9-50 31-60 22-11 49-7 65 10 7 8 12 18 13 29-13-8-25-11-38-10 9 7 15 14 18 24-13-8-25-10-37-7-20 5-34 18-51 26-5 2-8 1-10-2Zm15-39c12-17 28-27 45-29-8 7-12 14-14 21 10-6 21-8 31-6-10 6-16 13-20 22-13-5-27-7-42-8Z"/>
+                <path class="desk-detail" d="M235 165c4 10 4 18 1 25m33-26c-1 11 0 18 4 26"/>
+                <path d="M200 198c21 25 42 43 66 59l29 22 68 20m-91-101c30 19 49 38 64 61l27 20 50 21"/>
+                <path class="desk-detail" d="M348 299h13m-8-4 9 4m-49-3h13m-8-4 9 4"/>
+                <path d="M190 300c-6 29 5 49 34 62l65 27c15 6 28 6 42 0m-73-21c-14 33-21 63-19 93l-29 1m99-71c15 30 27 56 51 72l31 1"/>
+              </g>
+              <g class="desk-ink" data-desk-objects>
+                <path d="M350 286h88v27h-88Z"/>
+                <path class="desk-detail" d="M358 294h72m-63 13h54"/>
+                <path d="M486 300c-2-15 6-25 19-26 14-1 25 8 26 23l-3 17h-39Z"/>
+                <path d="M579 318c-2-20 8-32 24-32s26 12 24 32m-42-2c-7-6-11-12-11-20m53 20c7-6 11-12 11-20"/>
+                <path d="M682 299c0-7 6-12 13-12s13 5 13 12v14h-26Z"/>
+                <path class="desk-accent" d="M687 299c5-3 11-3 16 0"/>
+              </g>
+            </svg>
+          </div>
+
+          <div class="projects-foreground" data-projects-foreground>
+            <article class="project-stop project-stop-coromandel" data-project-stop="coromandel" aria-labelledby="coromandel-project-title">
+              <svg class="project-art" viewBox="0 0 180 180" aria-hidden="true">
+                <path class="project-paper" d="M34 23c21 2 39-2 57-1l58 4c4 39 2 78-1 119-36 6-76 3-113-1-4-41-5-82-1-121Z"/>
+                <path d="M45 34c20 2 39 0 59 0m-57 10c17 2 31 1 47 1m-49 23c23-2 47 2 72-1m-70 11c18 2 36 1 54 0m-54 11c12-1 23 0 36 1"/>
+                <path class="project-blue" d="M47 108c15-10 26-6 37-1 12 6 21 6 33-2"/>
+                <path d="M46 120c21 2 41 1 62-2m-58 12c17 1 31 2 49 0"/>
+                <g aria-hidden="true">
+                  <circle cx="47" cy="86" r="2.2"/><circle cx="58" cy="86" r="2.2"/><circle cx="69" cy="86" r="2.2"/><circle cx="80" cy="86" r="2.2"/><circle cx="91" cy="86" r="2.2"/><circle cx="102" cy="86" r="2.2"/>
+                  <circle cx="47" cy="96" r="2.2"/><circle cx="58" cy="96" r="2.2"/><circle cx="69" cy="96" r="2.2"/><circle cx="80" cy="96" r="2.2"/><circle cx="91" cy="96" r="2.2"/><circle cx="102" cy="96" r="2.2"/>
+                  <circle cx="47" cy="106" r="2.2"/><circle cx="58" cy="106" r="2.2"/><circle cx="69" cy="106" r="2.2"/><circle cx="80" cy="106" r="2.2"/><circle cx="91" cy="106" r="2.2"/><circle cx="102" cy="106" r="2.2"/>
+                </g>
+                <path class="project-paper" d="M108 95c-1-15 10-26 24-26s26 10 26 25v15h-50Z"/>
+                <path class="project-blue" d="M117 94V80c0-9 6-16 15-16s15 7 15 16v14"/>
+                <path class="project-blue" d="M108 94c15-4 34-4 50 0v39c-16 4-35 4-51 0Z"/>
+                <path d="M119 108h1m12 0h1m-9 12c4 3 9 3 13 0"/>
+              </svg>
+              <div class="project-copy">
+                <h3 class="project-name" id="coromandel-project-title">COROMANDEL<br>INTERNATIONAL</h3>
+                <p class="project-detail">Digital Marketing Intern<br>Hyderabad · May — June 2026</p>
+                <p class="project-summary">Research and data collection on content patterns, posting activity and platform use. Compared Coromandel's digital presence with sector peers and researched agricultural influencer relevance.</p>
+                <ol class="project-process" aria-label="Public summary of internship research">
+                  <li data-process-step>18 COMPANIES</li>
+                  <li data-process-step>DIGITAL PLATFORMS<small>YouTube · LinkedIn · Instagram · Facebook</small></li>
+                  <li data-process-step>CONTENT RESEARCH</li>
+                  <li data-process-step>KRISHI / AGRICULTURAL INFLUENCER RESEARCH</li>
+                  <li data-process-step>COMPETITOR COMPARISON</li>
+                  <li data-process-step>DIGITAL PRESENCE ANALYSIS</li>
+                </ol>
+                <a class="project-action" href="mailto:ace.jayanth1111@gmail.com?subject=Requesting%20Access%20to%20Coromandel%20Project&amp;body=Hi%20Jayanth%2C%0A%0AI%27d%20like%20to%20request%20access%20to%20your%20Coromandel%20project.%0A%0AThanks." aria-label="Request permission to view the Coromandel project">
+                  <span>REQUEST PERMISSION</span>
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13m-5-5 5 5-5 5"/></svg>
+                </a>
+              </div>
+            </article>
+
+            <article class="project-stop project-stop-ev" data-project-stop="ev-excel" aria-labelledby="ev-project-title">
+              <svg class="project-art" viewBox="0 0 260 190" role="img" aria-label="Hand-drawn spreadsheet connected to a plain-language AI prompt and chart">
+                <path class="project-paper" d="M18 24c37-3 73 1 112-1l2 136c-37 3-76 1-113-1Z"/>
+                <path d="M31 39c25 2 49 1 73 0m-72 12c25 0 49 1 74-1"/>
+                <path class="project-blue" d="M31 66h84m-84 20h84m-84 20h84m-84 20h84m-56-40v60m28-60v60m28-60v60"/>
+                <path d="M145 61c12-9 26-13 43-12l49 2c6 1 9 5 7 11l-2 35c-1 5-5 8-11 8h-79c-7 0-10-4-10-10V70c0-4 1-7 3-9Z"/>
+                <path d="M158 77c15 1 28 0 43-1m-43 12c10 0 19 1 30-1"/>
+                <path class="project-blue" d="m224 78 3 6 7 2-7 2-3 6-2-6-7-2 7-2Z"/>
+                <path d="M134 119c16 5 25 11 34 24m-6-15 7 15-15-1"/>
+                <path d="M178 151v-12h13v12m8 0v-24h13v24m8 0v-35h13v35m8 0v-19h13v19"/>
+                <path class="project-blue" d="M176 157h61m-53-47h53"/>
+              </svg>
+              <div class="project-copy">
+                <h3 class="project-name" id="ev-project-title">EV EXCEL</h3>
+                <p class="project-detail">EXCEL ADD-IN · API MODELS OR LOCAL OLLAMA</p>
+                <p class="project-summary">Turns plain-language questions into Excel analytics with AI modules. Use an API, or run locally with Ollama for an offline workflow.</p>
+                <a class="project-action" href="https://github.com/Jayanth-Ace/ev-excel" target="_blank" rel="noopener noreferrer" aria-label="Open the EV Excel GitHub repository">
+                  <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M8 6 3 16l5 10m16-20 5 10-5 10M19 4l-6 24"/><path class="project-blue" d="M8 16h7m2 0h7"/></svg>
+                  <span>VIEW ON GITHUB</span>
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13m-5-5 5 5-5 5"/></svg>
+                </a>
+              </div>
+            </article>
+
+            <article class="project-stop project-stop-lab" data-project-stop="lab" aria-labelledby="projects-lab-title">
+              <svg class="project-art" viewBox="0 0 100 120" aria-hidden="true">
+                <path d="M35 12h30m-8 0v31l24 43c7 13 0 22-14 22H32c-14 0-21-9-14-22l24-43V12"/>
+                <path class="project-blue" d="M27 78c12-7 24 5 37-1 7-3 13-4 20-2m-48 17c10-2 20 2 30 0"/>
+                <path d="M24 87c14 2 31 2 47-1M50 57v2m-14 9v2m35-10v2"/>
+                <path class="project-blue" d="m78 14 2 5 5 2-5 2-2 5-2-5-5-2 5-2Z"/>
+              </svg>
+              <div class="projects-lab-copy">
+                <p class="projects-lab-kicker">LAB</p>
+                <h3 class="projects-lab-question" id="projects-lab-title">WANNA CHECK OUT MORE?</h3>
+                <p class="projects-lab-copyline">MORE PROJECTS,<br>EXPERIMENTS<br>&amp; WORK IN PROGRESS</p>
+                <a class="project-action projects-lab-link" href="https://github.com/Jayanth-Ace" target="_blank" rel="noopener noreferrer" aria-label="Explore more projects on Jayanth's GitHub profile">
+                  <span>CHECK OUT MY GITHUB</span>
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13m-5-5 5 5-5 5"/></svg>
+                </a>
+              </div>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="contact shell" id="contact" data-contact-section aria-labelledby="contact-title">
+      <div class="contact-main">
+        <div class="contact-heading-wrap" data-contact-heading>
+          <h2 class="contact-heading" id="contact-title">LET'S TALK<span class="contact-heading-period">.</span></h2>
+          <svg class="contact-doodle" viewBox="0 0 160 18" aria-hidden="true"><path data-contact-rule d="M2 10c22-5 42 3 63-1 27-5 48-4 69-1 9 1 17 1 24-1"/></svg>
+        </div>
+        <div class="contact-details">
+          <ul class="contact-list" aria-label="Contact details">
+            <li class="contact-row" data-contact-row>
+              <span class="contact-symbol contact-symbol-email" data-contact-symbol aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M3.5 6.4c0-.8.6-1.4 1.4-1.4h14.2c.8 0 1.4.6 1.4 1.4v11.2c0 .8-.6 1.4-1.4 1.4H4.9c-.8 0-1.4-.6-1.4-1.4z"/><path d="m4 6.8 7.2 5.6c.5.4 1.1.4 1.6 0L20 6.8"/></svg>
+              </span>
+              <span class="contact-label">EMAIL</span>
+              <a class="contact-link" href="mailto:ace.jayanth1111@gmail.com">ace.jayanth1111@gmail.com</a>
+              <span class="contact-link-mark" aria-hidden="true">↗</span>
+            </li>
+            <li class="contact-row" data-contact-row>
+              <span class="contact-symbol contact-symbol-linkedin" data-contact-symbol aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M4.5 3.8h15c.8 0 1.4.6 1.4 1.4v13.6c0 .8-.6 1.4-1.4 1.4h-15c-.8 0-1.4-.6-1.4-1.4V5.2c0-.8.6-1.4 1.4-1.4Z"/><path class="linkedin-mark" d="M7.2 10h2v7h-2zm1-3.1a1.15 1.15 0 1 0 0 2.3 1.15 1.15 0 0 0 0-2.3Zm3.1 3.1h1.9v1c.4-.7 1.1-1.2 2.2-1.2 2 0 2.6 1.3 2.6 3.1V17h-2v-3.7c0-.9 0-1.7-1.1-1.7s-1.3.8-1.3 1.7V17h-2.1z"/></svg>
+              </span>
+              <span class="contact-label">LINKEDIN</span>
+              <a class="contact-link" href="https://www.linkedin.com/in/jayanth-varigonda" target="_blank" rel="noopener noreferrer" aria-label="Jayanth Varigonda on LinkedIn">www.linkedin.com/in/jayanth-varigonda</a>
+              <span class="contact-link-mark" aria-hidden="true">↗</span>
+            </li>
+          </ul>
+          <div class="contact-resume" data-contact-resume>
+            <a class="contact-button" href="mailto:ace.jayanth1111@gmail.com?subject=Resume%20Request&amp;body=Hi%20Jayanth%2C%0A%0AI%20came%20across%20your%20portfolio%20and%20would%20like%20to%20request%20your%20updated%20resume.%0A%0AThanks." aria-label="Open an email draft requesting Jayanth's resume">
+              <span>REQUEST RESUME</span><span class="contact-button-mark" aria-hidden="true">↗</span>
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="contact-footerline" data-contact-status>
+        <span class="contact-status"><span class="contact-status-mark" aria-hidden="true"></span>OPEN TO WORK</span>
+      </div>
+    </footer>
+  </main>
+  <script src="assets/gsap.min.js"></script>
+  <script src="assets/ScrollTrigger.min.js"></script>
+  <script type="module" src="avatar/avatar-controller.js"></script>
+  <script>
+    gsap.registerPlugin(ScrollTrigger);
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const skillGroups = [
+      { name: 'MARKETING', color: '#2c63df', icon: '<path d="M4 12h5l10-5v10L9 12H4z"/><path d="M9 12l2 7H8l-2-7M22 9v6M2 10v4"/>', skills: ['Digital Marketing', 'Social Media', 'Content Research', 'Influencer Research'] },
+      { name: 'OPERATIONS', color: '#3f6654', icon: '<circle cx="12" cy="12" r="3"/><path d="M12 3v3m0 12v3M3 12h3m12 0h3M5.6 5.6l2.1 2.1m8.6 8.6 2.1 2.1m0-12.8-2.1 2.1m-8.6 8.6-2.1 2.1"/><circle cx="12" cy="12" r="8.5"/>', skills: ['Process Thinking', 'Operations', 'Problem Solving', 'Project Coordination'] },
+      { name: 'BUSINESS', color: '#935128', icon: '<circle cx="6" cy="6" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="12" cy="18" r="2"/><path d="M8 7.5 10.8 16M16 7.5 13.2 16M8 6h8"/>', skills: ['Business Analysis', 'Market Research', 'Strategy', 'Business Research'] },
+      { name: 'ANALYTICS', color: '#2c63df', icon: '<path d="M4 20V5m0 15h17"/><path d="m7 16 4-5 3 2 5-7"/><circle cx="19" cy="6" r="1"/>', skills: ['Excel', 'Tableau', 'Data Analysis', 'Data Visualization'] },
+      { name: 'AI', color: '#70476e', icon: '<path d="m12 2 1.7 6.3L20 10l-6.3 1.7L12 18l-1.7-6.3L4 10l6.3-1.7L12 2z"/><path d="M19 16v6m-3-3h6M4 18v4m-2-2h4"/>', skills: ['Generative AI', 'Prompt Engineering', 'AI Workflows', 'AI Tools'] },
+      { name: 'AUTOMATION', color: '#3f6654', icon: '<path d="M20 7V3l-3 3a8 8 0 0 0-13 4M4 17v4l3-3a8 8 0 0 0 13-4"/><path d="M4 10h4m8 4h4"/>', skills: ['Workflow Automation', 'MCP', 'API Integration', 'Tool Integration'] },
+      { name: 'TECH', color: '#2855b6', icon: '<path d="m8 7-5 5 5 5m8-10 5 5-5 5m-2-12-4 14"/>', skills: ['Python', 'JavaScript', 'FastAPI', 'SQL', 'Git / GitHub'] },
+      { name: 'CREATIVE', color: '#935128', icon: '<path d="m4 18 1.5-5L17 1l6 6-12 11-5 1zM14 4l6 6M4 18l5 1"/><path d="M3 22h18"/>', skills: ['Visual Design', 'Canva', 'GIMP', 'Krita', 'Inkscape'] },
+      { name: 'MOTION', color: '#70476e', icon: '<path d="M3 7h9m-9 5h16M3 17h12"/><path d="m17 4 4 3-4 3m-1 4 4 3-4 3"/>', skills: ['DaVinci Resolve', 'Video Editing', 'GSAP', 'Motion Design'] },
+      { name: 'RESEARCH', color: '#3f6654', icon: '<circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 5 5M8 10h5m-2.5-2.5v5"/>', skills: ['Market Research', 'Competitor Research', 'Data Collection', 'Social Media Research'] },
+    ];
+    const skillsStage = document.querySelector('[data-skills-stage]');
+    const skillNodesHost = document.querySelector('[data-skills-nodes]');
+    const constellation = document.querySelector('[data-skills-constellation]');
+    const branchSvg = document.querySelector('[data-skills-branches]');
+    const skillLeaves = document.querySelector('[data-skills-leaves]');
+    const skillStatus = document.querySelector('[data-skills-status]');
+    const skillNodeMarkup = skillGroups.map((group, index) => `
+      <article class="skills-node" data-skill-node="${index}" style="--node-accent:${group.color}">
+        <div class="skills-node-motion"><div class="skills-node-reaction"><div class="skills-node-kick">
+          <button class="skills-node-trigger" type="button" aria-expanded="false" aria-controls="skills-constellation" data-skill-trigger="${index}">
+            <span class="skills-mark" aria-hidden="true"><svg viewBox="0 0 24 24">${group.icon}</svg></span><span class="skills-name">${group.name}</span>
+          </button>
+        </div></div></div>
+      </article>`).join('');
+    skillNodesHost.innerHTML = skillNodeMarkup;
+    constellation.id = 'skills-constellation';
+    let activeSkill = null;
+    let activeSkillTimeline = null;
+    let deferredSkill = null;
+    const skillArticles = gsap.utils.toArray('[data-skill-node]');
+    const skillTriggers = gsap.utils.toArray('[data-skill-trigger]');
+
+    const clearSkillExpansion = () => {
+      constellation.hidden = true;
+      branchSvg.replaceChildren();
+      skillLeaves.replaceChildren();
+      skillArticles.forEach(node => node.classList.remove('is-active'));
+      skillTriggers.forEach(button => button.setAttribute('aria-expanded', 'false'));
+      skillsStage.classList.remove('has-active');
+      activeSkill = null;
+      activeSkillTimeline = null;
+    };
+    const closeSkill = next => {
+      if (!activeSkillTimeline) { if (next !== undefined) openSkill(next); return; }
+      deferredSkill = next ?? null;
+      skillTriggers[activeSkill].setAttribute('aria-expanded', 'false');
+      skillsStage.classList.remove('has-active');
+      skillArticles[activeSkill].classList.remove('is-active');
+      const closingTimeline = activeSkillTimeline;
+      closingTimeline.eventCallback('onReverseComplete', () => {
+        clearSkillExpansion();
+        const queued = deferredSkill;
+        deferredSkill = null;
+        if (queued !== null) openSkill(queued);
+      });
+      closingTimeline.reverse();
+    };
+    const openSkill = index => {
+      const group = skillGroups[index];
+      const stageRect = skillsStage.getBoundingClientRect();
+      const stageWidth = stageRect.width;
+      const stageHeight = stageRect.height;
+      const mobile = window.matchMedia('(max-width: 520px)').matches;
+      const activeBounds = skillArticles[index].getBoundingClientRect();
+      const origin = { x: activeBounds.left - stageRect.left + activeBounds.width / 2, y: activeBounds.top - stageRect.top + activeBounds.height / 2 };
+      const signX = origin.x < stageWidth * .55 ? 1 : -1;
+      const step = mobile ? 30 : 38;
+      const leafWidth = mobile ? 140 : 190;
+      const minX = signX < 0 ? leafWidth + 8 : 8;
+      const maxX = signX < 0 ? stageWidth - 8 : stageWidth - leafWidth - 8;
+      const clusterX = gsap.utils.clamp(minX, maxX, origin.x + signX * (mobile ? 104 : 186));
+      const firstY = gsap.utils.clamp(26, stageHeight - group.skills.length * step - 25, origin.y - (group.skills.length - 1) * step / 2);
+      constellation.hidden = false;
+      constellation.style.setProperty('--branch-color', group.color);
+      branchSvg.setAttribute('viewBox', `0 0 ${stageWidth} ${stageHeight}`);
+      branchSvg.replaceChildren();
+      skillLeaves.replaceChildren();
+      skillArticles.forEach(node => node.classList.remove('is-active'));
+      skillTriggers.forEach(button => button.setAttribute('aria-expanded', 'false'));
+      skillArticles[index].classList.add('is-active');
+      skillTriggers[index].setAttribute('aria-expanded', 'true');
+      skillsStage.classList.add('has-active');
+      activeSkill = index;
+      skillStatus.textContent = `${group.name}: ${group.skills.join(', ')}`;
+      const count = group.skills.length;
+      group.skills.forEach((skill, skillIndex) => {
+        const leafY = firstY + skillIndex * step;
+        const leaf = document.createElement('span');
+        leaf.className = 'skills-leaf';
+        leaf.textContent = skill;
+        leaf.style.left = `${clusterX}px`;
+        leaf.style.top = `${leafY}px`;
+        leaf.style.transform = signX < 0 ? 'translate(-100%, -50%)' : 'translateY(-50%)';
+        leaf.style.textAlign = signX < 0 ? 'right' : 'left';
+        leaf.style.setProperty('--leaf-color', group.color);
+        skillLeaves.append(leaf);
+
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        const controlX = origin.x + (clusterX - origin.x) * .52;
+        path.setAttribute('d', `M ${origin.x} ${origin.y} C ${controlX} ${origin.y}, ${controlX} ${leafY}, ${clusterX} ${leafY}`);
+        path.setAttribute('class', 'skills-branch');
+        branchSvg.append(path);
+      });
+      const paths = gsap.utils.toArray('.skills-branch', branchSvg);
+      paths.forEach(path => {
+        const length = path.getTotalLength();
+        gsap.set(path, { strokeDasharray: length, strokeDashoffset: length });
+      });
+      gsap.set(skillLeaves.children, { autoAlpha: 0, y: 8, scale: .94, filter: 'blur(4px)' });
+      const duration = reducedMotion ? 0 : .55;
+      activeSkillTimeline = gsap.timeline();
+      activeSkillTimeline.to(paths, { strokeDashoffset: 0, duration, stagger: reducedMotion ? 0 : .045, ease: 'power2.out' }, 0);
+      activeSkillTimeline.to(skillLeaves.children, { autoAlpha: 1, y: 0, scale: 1, filter: 'blur(0px)', duration: reducedMotion ? 0 : .34, stagger: reducedMotion ? 0 : .055, ease: 'power2.out' }, .12);
+    };
+    skillTriggers.forEach(button => button.addEventListener('click', () => {
+      const index = Number(button.dataset.skillTrigger);
+      if (activeSkill === index) closeSkill();
+      else if (activeSkill !== null) closeSkill(index);
+      else openSkill(index);
+    }));
+    skillsStage.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && activeSkill !== null) closeSkill();
+    });
+    if (!reducedMotion && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+      const cursorReactions = skillArticles.map(node => {
+        const reaction = node.querySelector('.skills-node-reaction');
+        return { node, reaction, moveX: gsap.quickTo(reaction, 'x', { duration: .3, ease: 'power3.out' }), moveY: gsap.quickTo(reaction, 'y', { duration: .3, ease: 'power3.out' }), moveScale: gsap.quickTo(reaction, 'scale', { duration: .34, ease: 'power3.out' }), lastKick: 0 };
+      });
+      let lastPointer = null;
+      skillsStage.addEventListener('pointermove', event => {
+        const now = performance.now();
+        const rect = skillsStage.getBoundingClientRect();
+        const speed = lastPointer ? Math.hypot(event.clientX - lastPointer.x, event.clientY - lastPointer.y) / Math.max(1, now - lastPointer.time) : 0;
+        lastPointer = { x: event.clientX, y: event.clientY, time: now };
+        cursorReactions.forEach(({ node, moveX, moveY, moveScale, lastKick }, index) => {
+          const bounds = node.getBoundingClientRect();
+          const centerX = bounds.left + bounds.width / 2;
+          const centerY = bounds.top + bounds.height / 2;
+          const dx = centerX - event.clientX;
+          const dy = centerY - event.clientY;
+          const distance = Math.hypot(dx, dy);
+          const radius = 190;
+          if (distance < radius) {
+            const position = distance / radius;
+            const strength = position < .48
+              ? (1 - position / .48) * .76
+              : -Math.sin(((position - .48) / .52) * Math.PI) * .18;
+            moveX((dx / Math.max(distance, 1)) * strength * 11);
+            moveY((dy / Math.max(distance, 1)) * strength * 8);
+            moveScale(1 + Math.max(0, strength) * .012);
+            if (speed > 1.65 && distance < 142 && now - cursorReactions[index].lastKick > 850) {
+              cursorReactions[index].lastKick = now;
+              const kick = node.querySelector('.skills-node-kick');
+              const kickX = Math.max(-27, Math.min(27, dx * .18));
+              const kickY = Math.max(-22, Math.min(22, dy * .16));
+              gsap.killTweensOf(kick);
+              gsap.fromTo(kick, { x: 0, y: 0, rotation: 0 }, { x: kickX, y: kickY, rotation: kickX * .035, duration: .18, ease: 'power2.out', onComplete: () => gsap.to(kick, { x: 0, y: 0, rotation: 0, duration: .6, ease: 'elastic.out(1, .62)' }) });
+            }
+          } else {
+            moveX(0); moveY(0); moveScale(1);
+          }
+        });
+      });
+      skillsStage.addEventListener('pointerleave', () => {
+        lastPointer = null;
+        cursorReactions.forEach(({ moveX, moveY, moveScale, node }) => {
+          moveX(0); moveY(0); moveScale(1);
+          gsap.to(node.querySelector('.skills-node-kick'), { x: 0, y: 0, rotation: 0, duration: .45, ease: 'power2.out' });
+        });
+      });
+    }
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      gsap.to('.hero-lockup .letter', { y: 0, opacity: 1, duration: 1.05, stagger: .07, ease: 'power4.out', delay: .16 });
+      gsap.from('.hero-fade', { y: 18, opacity: 0, duration: .8, stagger: .08, ease: 'power3.out', delay: .48 });
+
+      const startHeroScene = () => {
+        const hero = document.querySelector('.hero');
+        const avatar = document.querySelector('.placeholder-art');
+        const gridPlane = document.querySelector('.hero-grid-plane');
+        const particles = gsap.utils.toArray('.wind-particle');
+        const scene = Object.freeze({ windStart: .04, nameStart: .11, lookStart: 0, fallStart: .43, nameEnd: .70, detailsStart: .30, detailsEnd: .76, avatarExit: .86, cloudStart: .035, cloudReady: .34, cloudFall: .43, cloudFade: .51, cloudGone: .63, starRevealStart: .12, starRevealEnd: .38, starStart: .84, starEnd: 1, gridSettle: .88 });
+        const avatarVisual = { progress: 0 };
+        const wind = gsap.timeline();
+        const starField = document.querySelector('[data-hero-star-field]');
+        const starShapes = {
+          point: '<path d="M7.5 1.1c.4 3.2 1 4.8 5.2 5.8-3.7.4-5.1 1.4-5.7 5.8C6.6 9 5.3 7.4 1.2 6.9c3.9-.5 5.5-1.7 6.3-5.8Z"/>',
+          spark: '<path d="M7.4 1.1 7.8 5.9 12.4 7.2 7.7 7.8 6.8 12.4 6.3 7.7 1.5 6.8 6.1 6.2Z"/><path d="M11.7 1.5v1.2m-.6-.6h1.2"/>',
+          dot: '<circle cx="3" cy="3" r="1.55"/>',
+        };
+        const starDesign = [
+          [7, 12, 'point', 10, .42], [19, 19, 'dot', 5, .36], [31, 10, 'spark', 13, .48], [44, 16, 'point', 8, .34], [58, 9, 'dot', 4, .30], [71, 17, 'point', 11, .44], [83, 11, 'dot', 4, .35], [94, 18, 'spark', 12, .40],
+          [11, 30, 'dot', 4, .32], [25, 26, 'point', 12, .46], [38, 34, 'dot', 5, .34], [50, 27, 'spark', 14, .43], [63, 32, 'point', 8, .32], [76, 24, 'dot', 4, .38], [89, 31, 'point', 11, .48],
+          [5, 45, 'spark', 11, .36], [17, 42, 'point', 8, .34], [29, 49, 'dot', 4, .31], [42, 43, 'point', 10, .41], [56, 51, 'spark', 12, .44], [68, 44, 'dot', 5, .31], [80, 50, 'point', 9, .39], [96, 45, 'dot', 4, .33],
+          [9, 61, 'point', 11, .43], [22, 57, 'dot', 4, .34], [34, 65, 'spark', 13, .46], [48, 59, 'point', 8, .32], [61, 68, 'dot', 5, .36], [73, 60, 'point', 12, .43], [87, 65, 'spark', 10, .39],
+          [4, 78, 'dot', 4, .31], [15, 83, 'point', 9, .40], [28, 76, 'spark', 12, .43], [41, 87, 'dot', 5, .33], [54, 79, 'point', 10, .39], [67, 88, 'spark', 13, .45], [79, 78, 'dot', 4, .32], [91, 85, 'point', 11, .44],
+          [10, 94, 'spark', 10, .37], [24, 93, 'dot', 4, .30], [39, 96, 'point', 8, .34], [57, 93, 'dot', 4, .31], [72, 96, 'point', 9, .38], [86, 94, 'dot', 5, .33], [97, 96, 'spark', 11, .39],
+        ];
+        starField.innerHTML = starDesign.map(([x, y, type, size, alpha], index) => `<span class="hero-star-mark ${type}" data-star-index="${index}" data-star-alpha="${alpha}" style="left:${x}%;top:${y}%;--mark-size:${size}px"><svg viewBox="0 0 ${type === 'dot' ? 6 : 14} ${type === 'dot' ? 6 : 14}" aria-hidden="true">${starShapes[type]}</svg></span>`).join('');
+        const starMarks = gsap.utils.toArray('[data-star-index]', starField);
+
+        const getGridMotion = () => {
+          const viewportHeight = window.innerHeight;
+          const scrollDistance = viewportHeight * 2.6;
+          const desiredTravel = viewportHeight * 5.4;
+          const rowSize = Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--grid-row-size')) || 132;
+          const rowCount = Math.ceil((desiredTravel + scrollDistance) / rowSize);
+          const travel = rowCount * rowSize - scrollDistance;
+          return { travel, overscan: travel + viewportHeight + 32 };
+        };
+        const updateGridPlaneGeometry = () => {
+          const { overscan } = getGridMotion();
+          gridPlane.style.setProperty('--grid-plane-overscan', `${overscan}px`);
+        };
+        updateGridPlaneGeometry();
+
+        particles.forEach((particle, index) => {
+          const start = index * .008;
+          const drift = Number(particle.dataset.drift) || 0;
+          wind.fromTo(particle,
+            { x: 0, y: 24, opacity: 0, scale: .72 },
+            { x: drift, y: -18, opacity: .26, scale: 1, duration: .22, ease: 'sine.out' },
+            start,
+          );
+          wind.to(particle, { x: drift * 1.4, y: -64, opacity: .08, duration: .34, ease: 'sine.inOut' }, start + .22);
+        });
+        wind.to(particles, { opacity: 0, duration: .16, ease: 'power1.in' }, .58);
+
+        const avatarExitY = () => {
+          const floor = document.querySelector('.hero-floor');
+          const avatarTop = floor.offsetTop + avatar.offsetTop;
+          return Math.max(0, window.innerHeight - avatarTop + 32);
+        };
+        const heroTransition = gsap.timeline({
+          scrollTrigger: {
+            trigger: hero,
+            start: 'top top',
+            end: () => `+=${window.innerHeight * 2.6}`,
+            scrub: true,
+            pin: true,
+            anticipatePin: 1,
+            toggleClass: { targets: hero, className: 'is-scene-pinned' },
+            invalidateOnRefresh: true,
+            onRefreshInit: updateGridPlaneGeometry,
+          },
+        });
+
+        heroTransition.to(gridPlane, { y: () => getGridMotion().travel * scene.gridSettle, duration: scene.avatarExit, ease: 'power2.in' }, 0);
+        heroTransition.to(gridPlane, { y: () => getGridMotion().travel, duration: 1 - scene.avatarExit, ease: 'power1.out' }, scene.avatarExit);
+        heroTransition.to('.hero-note.right', { y: -5, x: -5, duration: .24, ease: 'none' }, .02);
+        heroTransition.fromTo('.hero-note-role',
+          { x: 8, y: 4, autoAlpha: .6, filter: 'blur(2px)' },
+          { x: 0, y: 0, autoAlpha: 1, filter: 'blur(0px)', duration: .2, ease: 'none', immediateRender: false },
+          .035,
+        );
+        heroTransition.fromTo('[data-hero-role-rule]', { scaleX: 0 }, { scaleX: 1, duration: .15, ease: 'none', immediateRender: false }, .12);
+        const starSpan = scene.starEnd - scene.starStart;
+        const starDuration = starSpan * .55;
+        const starStagger = (starSpan - starDuration) / (starMarks.length - 1);
+        const earlyStarSpan = scene.starRevealEnd - scene.starRevealStart;
+        const earlyStarDuration = .19;
+        const earlyStarStagger = (earlyStarSpan - earlyStarDuration) / (starMarks.length - 1);
+        starMarks.forEach((star, index) => {
+          const initialY = index % 2 ? 3 : -3;
+          const initialScale = index % 3 ? .68 : .48;
+          const finalOpacity = Number(star.dataset.starAlpha);
+          const earlyOpacity = finalOpacity * .42;
+          heroTransition.fromTo(star,
+            { autoAlpha: 0, scale: initialScale, y: initialY },
+            { autoAlpha: earlyOpacity, scale: .82, y: 0, duration: earlyStarDuration, ease: 'none', immediateRender: false },
+            scene.starRevealStart + index * earlyStarStagger,
+          );
+          heroTransition.fromTo(star,
+            { autoAlpha: earlyOpacity, scale: .82, y: 0 },
+            { autoAlpha: finalOpacity, scale: 1, y: 0, duration: starDuration, ease: 'none', immediateRender: false },
+            scene.starStart + index * starStagger,
+          );
+        });
+        const cloudMotion = {
+          far: { enterX: 17, enterY: 14, enterRotation: -.7, fallX: 11, fallY: .08, fallRotation: .8 },
+          middle: { enterX: -20, enterY: 18, enterRotation: .5, fallX: -8, fallY: .16, fallRotation: -.65 },
+          near: { enterX: 14, enterY: 22, enterRotation: -.35, fallX: 16, fallY: .25, fallRotation: .45 },
+        };
+        gsap.utils.toArray('[data-hero-cloud]').forEach(cloud => {
+          const motion = cloudMotion[cloud.dataset.heroCloud];
+          heroTransition.fromTo(cloud,
+            { autoAlpha: 0, filter: 'blur(12px)', x: motion.enterX, y: motion.enterY, rotation: motion.enterRotation },
+            { autoAlpha: 1, filter: 'blur(0px)', x: 0, y: 0, rotation: 0, duration: scene.cloudReady - scene.cloudStart, ease: 'none' },
+            scene.cloudStart,
+          );
+          heroTransition.to(cloud, {
+            x: motion.fallX,
+            y: () => window.innerHeight * motion.fallY,
+            rotation: motion.fallRotation,
+            duration: scene.cloudGone - scene.cloudFall,
+            ease: 'none',
+          }, scene.cloudFall);
+          heroTransition.to(cloud, {
+            autoAlpha: 0,
+            filter: 'blur(10px)',
+            duration: scene.cloudGone - scene.cloudFade,
+            ease: 'none',
+          }, scene.cloudFade);
+        });
+        heroTransition.to(avatarVisual, {
+          progress: 1,
+          duration: scene.avatarExit - scene.lookStart,
+          ease: 'none',
+          onUpdate: () => {
+            const progress = avatarVisual.progress === 0 ? null : avatarVisual.progress;
+            window.avatarVisualProgress = progress;
+            window.dispatchEvent(new CustomEvent('avatarvisualprogress', { detail: progress }));
+          },
+        }, scene.lookStart);
+        heroTransition.add(wind, scene.windStart);
+        heroTransition.to('.hero-lockup', { y: () => window.innerHeight * 1.65, duration: scene.nameEnd - scene.nameStart, ease: 'power2.in' }, scene.nameStart);
+        heroTransition.to('.hero-note, .hero-engraving, .hero-foot', {
+          y: () => window.innerHeight * 1.12,
+          duration: scene.detailsEnd - scene.detailsStart,
+          ease: 'power1.in',
+          stagger: .015,
+        }, scene.detailsStart);
+        heroTransition.to(avatar, {
+          y: avatarExitY,
+          duration: scene.avatarExit - scene.fallStart,
+          ease: 'power1.in',
+        }, scene.fallStart);
+      };
+
+      startHeroScene();
+
+      const aboutSection = document.querySelector('.about-chapter');
+      const aboutRail = aboutSection.querySelector('[data-about-rail]');
+      const aboutPortrait = aboutSection.querySelector('.about-photo-image');
+      const experiencePanel = aboutSection.querySelector('.experience-panel');
+      const aboutMotion = gsap.matchMedia();
+      const addPortraitDrift = timeline => {
+        timeline.to(aboutPortrait, { y: -3, scale: 1.008, rotation: .12, duration: .22, ease: 'sine.inOut' }, 0);
+        timeline.to(aboutPortrait, { y: -1, scale: 1.004, rotation: -.08, duration: .25, ease: 'sine.inOut' }, .22);
+        timeline.to(aboutPortrait, { y: -4, scale: 1.01, rotation: .18, duration: .28, ease: 'sine.inOut' }, .47);
+        timeline.to(aboutPortrait, { y: 0, scale: 1, rotation: 0, duration: .25, ease: 'sine.inOut' }, .75);
+        return timeline;
+      };
+      aboutMotion.add('(min-width: 821px)', () => {
+        const horizontalTravel = () => experiencePanel.offsetLeft;
+        gsap.set('[data-experience-line]', { scaleX: 0, scaleY: 0 });
+        gsap.set('[data-experience-line="top"]', { scaleY: 1 });
+        gsap.set('[data-experience-line="stem"]', { scaleX: 1 });
+        gsap.set('[data-experience-marker]', { autoAlpha: 0, scale: .5, transformOrigin: 'center' });
+        gsap.set('.experience-logo, .experience-company, .experience-role, .experience-dates, [data-experience-closing]', { autoAlpha: 0, y: 8 });
+        gsap.set('[data-experience-practice]', { autoAlpha: 0, y: 8 });
+        const horizontalScene = gsap.timeline({
+          scrollTrigger: {
+            trigger: aboutSection,
+            start: 'top top',
+            end: () => `+=${horizontalTravel() * 1.25}`,
+            pin: true,
+            scrub: true,
+            anticipatePin: 1,
+            invalidateOnRefresh: true,
+          },
+        });
+        horizontalScene.to(aboutRail, { x: () => -horizontalTravel(), duration: 1, ease: 'none' }, 0);
+        addPortraitDrift(horizontalScene);
+        horizontalScene.to('[data-experience-practice]', { autoAlpha: 1, y: 0, duration: .08, ease: 'none' }, .65);
+        horizontalScene.to('[data-experience-line="top"]', { scaleX: 1, duration: .11, ease: 'none' }, .58);
+        horizontalScene.to('[data-experience-marker="top"]', { autoAlpha: 1, scale: 1, duration: .025, ease: 'none' }, .69);
+        horizontalScene.to('[data-experience-line="stem"]', { scaleY: 1, duration: .19, ease: 'none' }, .70);
+        horizontalScene.to('.experience-logo, .experience-company, .experience-role, .experience-dates', { autoAlpha: 1, y: 0, duration: .07, stagger: .045, ease: 'none' }, .74);
+        horizontalScene.to('[data-experience-marker="bottom"]', { autoAlpha: 1, scale: 1, duration: .025, ease: 'none' }, .91);
+        horizontalScene.to('[data-experience-closing]', { autoAlpha: 1, y: 0, duration: .04, ease: 'none' }, .95);
+        return () => horizontalScene.kill();
+      });
+      aboutMotion.add('(max-width: 820px)', () => {
+        const portraitSettle = gsap.timeline({
+          scrollTrigger: { trigger: aboutSection, start: 'top bottom', end: 'bottom top', scrub: true },
+        });
+        addPortraitDrift(portraitSettle);
+        return () => portraitSettle.scrollTrigger?.kill();
+      });
+      const bringTimeline = gsap.timeline({
+        scrollTrigger: { trigger: '.bring-section', start: 'top 88%', end: 'bottom 24%', scrub: true, invalidateOnRefresh: true },
+      });
+      bringTimeline.fromTo('[data-bring-word]', { yPercent: 112, rotation: 1.5, autoAlpha: 0 }, { yPercent: 0, rotation: 0, autoAlpha: 1, duration: .18, stagger: .075, ease: 'none' }, 0);
+      bringTimeline.fromTo('.bring-intro', { y: 16, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: .2, ease: 'none' }, .08);
+      bringTimeline.fromTo(skillArticles.map(node => node.querySelector('.skills-node-motion')), { y: 14, scale: .98 }, { y: 0, scale: 1, duration: .34, stagger: { each: .018, from: 'center' }, ease: 'none' }, .19);
+      bringTimeline.to(skillArticles.map(node => node.querySelector('.skills-node-motion')), { y: 2, rotation: .16, scale: 1.008, duration: .14, stagger: { each: .012, from: 'center' }, ease: 'none' }, .68);
+      bringTimeline.to(skillArticles.map(node => node.querySelector('.skills-node-motion')), { y: -2, rotation: -.12, scale: 1, duration: .16, stagger: { each: .012, from: 'edges' }, ease: 'none' }, .84);
+      const projectsSection = document.querySelector('[data-projects-section]');
+      const projectsWorld = projectsSection.querySelector('[data-projects-world]');
+      const projectsBackground = projectsSection.querySelector('[data-projects-background]');
+      const projectsDeskPlane = projectsSection.querySelector('[data-projects-desk-plane]');
+      const projectsForeground = projectsSection.querySelector('[data-projects-foreground]');
+      const projectsIntro = projectsSection.querySelector('[data-projects-intro]');
+      const projectsIntroLine = projectsSection.querySelector('[data-projects-intro-line]');
+      const projectStops = gsap.utils.toArray('[data-project-stop]', projectsSection);
+      const projectDrawables = root => gsap.utils.toArray('path, line, rect, circle, polyline', root)
+        .filter(shape => typeof shape.getTotalLength === 'function');
+      const prepareProjectDrawing = shapes => {
+        shapes.forEach(shape => {
+          const length = shape.getTotalLength();
+          shape.style.setProperty('--path-length', length);
+          gsap.set(shape, { strokeDasharray: length, strokeDashoffset: length });
+        });
+      };
+      const projectsMotion = gsap.matchMedia();
+      projectsMotion.add('(min-width: 821px) and (prefers-reduced-motion: no-preference)', () => {
+        const travel = () => Math.max(1, projectsWorld.scrollWidth - projectsSection.clientWidth);
+        const deskDrawing = projectsSection.querySelector('.projects-desk-desktop');
+        const deskLines = projectDrawables(deskDrawing);
+        const deskChair = deskDrawing.querySelector('[data-desk-chair]');
+        const deskObjects = deskDrawing.querySelector('[data-desk-objects]');
+        const coromandelStop = projectsSection.querySelector('[data-project-stop="coromandel"]');
+        const evStop = projectsSection.querySelector('[data-project-stop="ev-excel"]');
+        const labStop = projectsSection.querySelector('[data-project-stop="lab"]');
+        const projectDrawings = [coromandelStop, evStop, labStop].map(projectDrawables);
+        const processSteps = gsap.utils.toArray('[data-process-step]', coromandelStop);
+        const permissionAction = coromandelStop.querySelector('.project-action');
+        gsap.set(projectsIntro, { autoAlpha: 0, y: 8 });
+        gsap.set(projectStops, { autoAlpha: 0, y: 8 });
+        gsap.set(projectsIntroLine, { scaleX: 0, transformOrigin: 'left center' });
+        gsap.set(processSteps, { autoAlpha: 0, x: 7 });
+        gsap.set(permissionAction, { autoAlpha: 0, y: 5 });
+        prepareProjectDrawing(deskLines);
+        projectDrawings.forEach(prepareProjectDrawing);
+
+        const workspaceJourney = gsap.timeline({
+          scrollTrigger: {
+            trigger: projectsSection,
+            start: 'top top',
+            end: () => `+=${Math.max(travel() * 2.4, window.innerHeight * 10)}`,
+            pin: true,
+            scrub: true,
+            anticipatePin: 1,
+            invalidateOnRefresh: true,
+          },
+        });
+        // The grid remains the slow background plane; the desk and foreground notes
+        // travel at slightly different rates to give the workspace physical depth.
+        // Let the section title settle first. The desk is then drawn in as the
+        // visitor continues, before the whole workspace begins its slower travel.
+        workspaceJourney.to(projectsBackground, { x: () => -travel() * .88, duration: .98, ease: 'none' }, .25);
+        workspaceJourney.to(projectsDeskPlane, { x: () => -travel(), duration: .98, ease: 'none' }, .25);
+        workspaceJourney.to(projectsForeground, { x: () => -travel(), duration: .98, ease: 'none' }, .25);
+        workspaceJourney.fromTo(projectsIntro, { autoAlpha: 0, y: 8 }, { autoAlpha: 1, y: 0, duration: .045, ease: 'none' }, 0);
+        workspaceJourney.to(projectsIntroLine, { scaleX: 1, duration: .08, ease: 'none' }, .025);
+        workspaceJourney.to(deskLines, { strokeDashoffset: 0, duration: .19, stagger: { each: .003 }, ease: 'none' }, .08);
+        workspaceJourney.to(projectsSection.querySelector('[data-project-person]'), { y: -1.5, rotation: -.12, duration: .12, ease: 'none' }, .36);
+        workspaceJourney.to(projectsSection.querySelector('[data-project-person]'), { y: 0, rotation: 0, duration: .13, ease: 'none' }, .48);
+        workspaceJourney.to(deskChair, { y: 1.5, rotation: .1, duration: .14, ease: 'none' }, .36);
+        workspaceJourney.to(deskChair, { y: 0, rotation: 0, duration: .14, ease: 'none' }, .5);
+        workspaceJourney.to(deskObjects, { y: -1, rotation: -.06, duration: .14, ease: 'none' }, .4);
+        workspaceJourney.to(deskObjects, { y: 0, rotation: 0, duration: .14, ease: 'none' }, .54);
+
+        const revealStop = (stop, drawings, start, duration) => {
+          workspaceJourney.fromTo(stop,
+            { autoAlpha: 0, x: 14, y: 8, scale: .99 },
+            { autoAlpha: 1, x: 0, y: 0, scale: 1, duration, ease: 'none' },
+            start,
+          );
+          workspaceJourney.to(drawings, { strokeDashoffset: 0, duration: duration * .7, stagger: { each: .003 }, ease: 'none' }, start + .015);
+        };
+        revealStop(coromandelStop, projectDrawings[0], .46, .15);
+        workspaceJourney.to(processSteps, { autoAlpha: 1, x: 0, duration: .12, stagger: .025, ease: 'none' }, .54);
+        workspaceJourney.to(permissionAction, { autoAlpha: 1, y: 0, duration: .07, ease: 'none' }, .74);
+        revealStop(evStop, projectDrawings[1], .84, .16);
+        revealStop(labStop, projectDrawings[2], 1.08, .15);
+        return () => workspaceJourney.kill();
+      });
+      projectsMotion.add('(max-width: 820px) and (prefers-reduced-motion: no-preference)', () => {
+        const mobileDesk = projectsSection.querySelector('.projects-desk-mobile');
+        const deskLines = projectDrawables(mobileDesk);
+        const mobilePerson = mobileDesk.querySelector('[data-project-person]');
+        const mobileChair = mobileDesk.querySelector('[data-desk-chair]');
+        const mobileObjects = mobileDesk.querySelector('[data-desk-objects]');
+        const coromandelStop = projectsSection.querySelector('[data-project-stop="coromandel"]');
+        const evStop = projectsSection.querySelector('[data-project-stop="ev-excel"]');
+        const labStop = projectsSection.querySelector('[data-project-stop="lab"]');
+        prepareProjectDrawing(deskLines);
+        const setupReveal = (target, start, end) => gsap.fromTo(target,
+          { autoAlpha: 0, y: 12 },
+          { autoAlpha: 1, y: 0, ease: 'none', scrollTrigger: { trigger: target, start, end, scrub: true, invalidateOnRefresh: true } },
+        );
+        setupReveal(projectsIntro, 'top 88%', 'top 62%');
+        gsap.to(deskLines, { strokeDashoffset: 0, ease: 'none', scrollTrigger: { trigger: mobileDesk, start: 'top 86%', end: 'bottom 55%', scrub: true } });
+        const mobileDeskMotion = gsap.timeline({
+          scrollTrigger: {
+            trigger: mobileDesk,
+            start: 'top 88%',
+            end: 'bottom 48%',
+            scrub: true,
+            invalidateOnRefresh: true,
+          },
+        });
+        mobileDeskMotion.to(mobilePerson, { y: -1.5, rotation: -.18, duration: .45, ease: 'none' }, .2);
+        mobileDeskMotion.to(mobileChair, { y: 1, rotation: .12, duration: .45, ease: 'none' }, .2);
+        mobileDeskMotion.to(mobileObjects, { y: -1, rotation: -.1, duration: .45, ease: 'none' }, .2);
+        mobileDeskMotion.to(mobilePerson, { y: 0, rotation: 0, duration: .35, ease: 'none' }, .65);
+        mobileDeskMotion.to(mobileChair, { y: 0, rotation: 0, duration: .35, ease: 'none' }, .65);
+        mobileDeskMotion.to(mobileObjects, { y: 0, rotation: 0, duration: .35, ease: 'none' }, .65);
+        [coromandelStop, evStop, labStop].forEach(stop => {
+          const drawing = projectDrawables(stop);
+          prepareProjectDrawing(drawing);
+          const rows = gsap.utils.toArray('[data-process-step]', stop);
+          const action = stop.querySelector('.project-action');
+          const stepTimeline = gsap.timeline({
+            scrollTrigger: { trigger: stop, start: 'top 84%', end: 'bottom 32%', scrub: true, invalidateOnRefresh: true },
+          });
+          stepTimeline.fromTo(stop, { autoAlpha: 0, y: 12 }, { autoAlpha: 1, y: 0, duration: .16, ease: 'none' }, 0);
+          stepTimeline.to(drawing, { strokeDashoffset: 0, duration: .16, stagger: { each: .004 }, ease: 'none' }, .12);
+          if (rows.length) stepTimeline.fromTo(rows, { autoAlpha: 0, x: 7 }, { autoAlpha: 1, x: 0, duration: .25, stagger: .05, ease: 'none' }, .32);
+          stepTimeline.fromTo(action, { autoAlpha: 0, y: 5 }, { autoAlpha: 1, y: 0, duration: .08, ease: 'none' }, rows.length ? .68 : .42);
+        });
+        return () => ScrollTrigger.getAll().filter(trigger => trigger.trigger && projectsSection.contains(trigger.trigger)).forEach(trigger => trigger.kill());
+      });
+      const contactSection = document.querySelector('[data-contact-section]');
+      const contactRule = contactSection.querySelector('[data-contact-rule]');
+      const contactRuleLength = contactRule.getTotalLength();
+      gsap.set('[data-contact-heading], [data-contact-row], [data-contact-resume], [data-contact-status]', { y: 14, autoAlpha: 0 });
+      gsap.set(contactRule, { strokeDasharray: contactRuleLength, strokeDashoffset: contactRuleLength });
+      const contactTimeline = gsap.timeline({
+        scrollTrigger: {
+          trigger: contactSection,
+          start: 'top 88%',
+          end: 'top 36%',
+          scrub: true,
+          invalidateOnRefresh: true,
+        },
+      });
+      contactTimeline.fromTo('[data-contact-heading]', { y: 18, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: .18, ease: 'none' }, 0);
+      contactTimeline.to(contactRule, { strokeDashoffset: 0, duration: .16, ease: 'none' }, .12);
+      contactTimeline.fromTo('[data-contact-row]', { y: 14, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: .16, stagger: .1, ease: 'none' }, .27);
+      contactTimeline.fromTo('[data-contact-symbol]', { y: 5, x: -4, scale: .72, rotation: -9, autoAlpha: 0 }, { y: 0, x: 0, scale: 1, rotation: 0, autoAlpha: 1, duration: .2, stagger: .1, ease: 'power2.out' }, .29);
+      contactTimeline.fromTo('[data-contact-resume]', { y: 12, autoAlpha: 0, scale: .985 }, { y: 0, autoAlpha: 1, scale: 1, duration: .15, ease: 'none' }, .62);
+      contactTimeline.fromTo('[data-contact-status]', { y: 8, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: .13, ease: 'none' }, .84);
+    } else {
+      gsap.set('.hero-lockup .letter, .hero-fade', { y: 0, opacity: 1 });
+      gsap.set('[data-hero-role-rule]', { scaleX: 1 });
+      const contactSection = document.querySelector('[data-contact-section]');
+      gsap.set(contactSection.querySelectorAll('[data-contact-heading], [data-contact-row], [data-contact-resume], [data-contact-status]'), { y: 0, autoAlpha: 1, scale: 1 });
+      gsap.set(contactSection.querySelector('[data-contact-rule]'), { strokeDasharray: 'none', strokeDashoffset: 0 });
+    }
+  </script>
+</body>
+</html>
