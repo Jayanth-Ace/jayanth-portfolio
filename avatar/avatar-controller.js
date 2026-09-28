@@ -35,7 +35,9 @@ if (stage) {
   // Keep the compositor on the browser's normal, synchronized path. Some
   // mobile GPUs can present a partially-cleared video frame when a
   // desynchronized canvas is seeked repeatedly by ScrollTrigger.
-  const context = canvas.getContext('2d', { alpha: true });
+  // The wind matte reads every decoded frame back for transparency. Asking
+  // for a readback-friendly context avoids GPU stalls on slower laptops.
+  const context = canvas.getContext('2d', { alpha: true, willReadFrequently: true });
   const motionQuery = matchMedia('(prefers-reduced-motion: reduce)');
   const hero = document.querySelector('.hero');
   const cache = new Map();
