@@ -498,7 +498,7 @@
           <svg class="skills-branches" data-skills-branches aria-hidden="true"></svg>
           <div class="skills-leaves" data-skills-leaves></div>
         </div>
-        <p class="skills-note" aria-hidden="true">SELECT A FIELD TO EXPLORE</p>
+        <p class="skills-note" aria-hidden="true">HOVER OR SELECT A FIELD TO EXPLORE</p>
       </div>
       <p class="sr-only" data-skills-status aria-live="polite"></p>
     </section>
@@ -839,7 +839,26 @@
       activeSkillTimeline.to(paths, { strokeDashoffset: 0, duration, stagger: reducedMotion ? 0 : .045, ease: 'power2.out' }, 0);
       activeSkillTimeline.to(skillLeaves.children, { autoAlpha: 1, y: 0, scale: 1, filter: 'blur(0px)', duration: reducedMotion ? 0 : .34, stagger: reducedMotion ? 0 : .055, ease: 'power2.out' }, .12);
     };
+    let hoverOpenedSkill = false;
+    let hoverCloseTimer = 0;
+    const cancelHoverClose = () => {
+      if (hoverCloseTimer) window.clearTimeout(hoverCloseTimer);
+      hoverCloseTimer = 0;
+    };
+    const scheduleHoverClose = () => {
+      cancelHoverClose();
+      if (!hoverOpenedSkill || activeSkill === null) return;
+      hoverCloseTimer = window.setTimeout(() => {
+        hoverCloseTimer = 0;
+        if (hoverOpenedSkill && activeSkill !== null) {
+          closeSkill();
+          hoverOpenedSkill = false;
+        }
+      }, 260);
+    };
     skillTriggers.forEach(button => button.addEventListener('click', () => {
+      cancelHoverClose();
+      hoverOpenedSkill = false;
       const index = Number(button.dataset.skillTrigger);
       if (activeSkill === index) closeSkill();
       else if (activeSkill !== null) closeSkill(index);
@@ -855,6 +874,27 @@
       });
       let lastPointer = null;
       skillsStage.addEventListener('pointermove', event => {
+        cancelHoverClose();
+        if (activeSkill === null) {
+          let nearestIndex = -1;
+          let nearestDistance = Infinity;
+          skillArticles.forEach((node, index) => {
+            const bounds = node.getBoundingClientRect();
+            const distance = Math.hypot(
+              event.clientX - (bounds.left + bounds.width / 2),
+              event.clientY - (bounds.top + bounds.height / 2)
+            );
+            if (distance < nearestDistance) {
+              nearestDistance = distance;
+              nearestIndex = index;
+            }
+          });
+          const hoverRadius = Math.max(112, Math.min(156, skillsStage.clientWidth * .12));
+          if (nearestIndex >= 0 && nearestDistance <= hoverRadius) {
+            hoverOpenedSkill = true;
+            openSkill(nearestIndex);
+          }
+        }
         const now = performance.now();
         const rect = skillsStage.getBoundingClientRect();
         const speed = lastPointer ? Math.hypot(event.clientX - lastPointer.x, event.clientY - lastPointer.y) / Math.max(1, now - lastPointer.time) : 0;
@@ -889,6 +929,7 @@
         });
       });
       skillsStage.addEventListener('pointerleave', () => {
+        scheduleHoverClose();
         lastPointer = null;
         cursorReactions.forEach(({ moveX, moveY, moveScale, node }) => {
           moveX(0); moveY(0); moveScale(1);
