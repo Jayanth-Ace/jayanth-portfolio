@@ -2,7 +2,7 @@ const CONFIG = Object.freeze({
   introDelayMs: 480,
   introDurationMs: 2400,
   maxDpr: 1.5,
-  cacheSize: 12,
+  cacheSize: 80,
   windPeakProgress: .78,
   frameRoot: 'avatar/frames',
   windVideo: 'avatar/raining%20wind.mp4',
@@ -59,6 +59,21 @@ if (stage) {
     visible: true,
   };
   let lastDrawnKey = '';
+  let verticalFramesReady = false;
+  let windAssetReady = false;
+  let avatarAssetsEventSent = false;
+
+  function dispatchAvatarAssetsReady() {
+    if (!verticalFramesReady || !windAssetReady || avatarAssetsEventSent) return;
+    avatarAssetsEventSent = true;
+    window.dispatchEvent(new Event('avatarassetsready'));
+  }
+
+  function preloadVerticalFrames() {
+    const frames = Array.from({ length: SEQUENCES.vertical }, (_, index) => getFrame(frameKey('vertical', index)));
+    frames.push(getFrame(RESTING_EXPRESSION_FRAME));
+    return Promise.all(frames);
+  }
 
   function frameKey(sequence, index) {
     const bounded = Math.max(0, Math.min(SEQUENCES[sequence] - 1, Math.round(index)));
@@ -86,7 +101,10 @@ if (stage) {
 
     const image = new Image();
     entry = { image, promise: new Promise(resolve => {
-      image.onload = () => resolve(image);
+      image.onload = () => {
+        const decoded = image.decode ? image.decode().catch(() => {}) : Promise.resolve();
+        decoded.then(() => resolve(image));
+      };
       image.onerror = () => {
         failed.add(key);
         resolve(null);
@@ -321,6 +339,8 @@ if (stage) {
   function failWindVideo() {
     windVideoFailed = true;
     windVideoReady = false;
+    windAssetReady = true;
+    dispatchAvatarAssetsReady();
     if (state.visible && state.phase !== 'intro') drawRestingFrame();
   }
 
@@ -343,17 +363,16 @@ if (stage) {
   }
 
   function onWindVideoLoaded() {
-    if (!motionQuery.matches && Number.isFinite(windVideo.duration) && windVideo.duration > 0) {
-      const ranges = windVideo.seekable;
-      const seekEnd = ranges.length ? ranges.end(ranges.length - 1) : 0;
-      if (seekEnd < windVideo.duration - 1 / 48) {
-        if (windBlobFallbackStarted) failWindVideo();
-        else loadSeekableWindBlob();
-        return;
-      }
+    // Buffer the complete file once so timeline seeks do not depend on a
+    // device's range-request behavior or network jitter.
+    if (!windBlobFallbackStarted) {
+      loadSeekableWindBlob();
+      return;
     }
     windVideoReady = true;
     windVideoFailed = false;
+    windAssetReady = true;
+    dispatchAvatarAssetsReady();
     windVideo.pause();
     scheduleWindSeek();
   }
@@ -382,6 +401,10 @@ if (stage) {
     state.raf = 0;
     if (state.phase !== 'intro') {
       scheduleWindSeek();
+      return;
+    }
+    if (!verticalFramesReady) {
+      schedule();
       return;
     }
 
@@ -489,7 +512,11 @@ if (stage) {
   }, { once: true });
   windVideo.load();
 
-  getFrame(RESTING_EXPRESSION_FRAME);
+  preloadVerticalFrames().then(() => {
+    verticalFramesReady = true;
+    dispatchAvatarAssetsReady();
+    schedule();
+  });
 
   fallback.addEventListener('load', schedule, { once: true });
   if (fallback.complete) schedule();

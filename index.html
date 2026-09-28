@@ -23,9 +23,9 @@
     * { box-sizing: border-box; }
     html { scroll-behavior: smooth; }
     body { margin: 0; background: var(--paper); color: var(--ink); font-family: "Helvetica Neue", Arial, sans-serif; overflow-x: hidden; }
-    .site-loader { position: fixed; z-index: 100; inset: 0; display: grid; place-items: center; background: var(--paper); color: var(--ink); transition: opacity .55s ease, visibility .55s ease; }
+    .site-loader { position: fixed; z-index: 100; inset: 0; display: grid; place-items: center; overflow: hidden; background-color: var(--paper); background-image: linear-gradient(to right, var(--line) 1px, transparent 1px), linear-gradient(to bottom, var(--line) 1px, transparent 1px); background-size: 25vw 100%, 100% 132px; color: var(--ink); transition: opacity .55s ease, visibility .55s ease; }
     .site-loader.is-done { opacity: 0; visibility: hidden; pointer-events: none; }
-    .site-loader-inner { display: grid; justify-items: center; gap: 14px; }
+    .site-loader-inner { position: relative; display: grid; justify-items: center; gap: 14px; padding: 34px 48px; border: 1px solid var(--line); background: color-mix(in srgb, var(--paper) 88%, transparent); }
     .site-loader-name { font-size: clamp(2rem, 6vw, 4.8rem); font-weight: 800; letter-spacing: -.09em; line-height: .8; }
     .site-loader-status { color: var(--muted); font: 10px/1 monospace; letter-spacing: .14em; }
     .site-loader-rule { width: 88px; height: 1px; overflow: hidden; background: var(--line); }
@@ -690,7 +690,7 @@
             </li>
           </ul>
           <div class="contact-resume" data-contact-resume>
-            <a class="contact-button" href="mailto:ace.jayanth1111@gmail.com?subject=Resume%20Request&amp;body=Hi%20Jayanth%2C%0A%0AI%20came%20across%20your%20portfolio%20and%20would%20like%20to%20request%20your%20updated%20resume.%0A%0AThanks." aria-label="Open an email draft requesting Jayanth's resume">
+            <a class="contact-button" data-resume-link target="_blank" rel="noopener" href="mailto:ace.jayanth1111@gmail.com?subject=Resume%20Request&amp;body=Hi%20Jayanth%2C%0A%0AI%20came%20across%20your%20portfolio%20and%20would%20like%20to%20request%20your%20updated%20resume.%0A%0AThanks." aria-label="Open an email draft requesting Jayanth's resume">
               <span>REQUEST RESUME</span><span class="contact-button-mark" aria-hidden="true">↗</span>
             </a>
           </div>
@@ -708,17 +708,20 @@
     gsap.registerPlugin(ScrollTrigger);
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const siteLoader = document.querySelector('[data-site-loader]');
+    const loaderStatus = siteLoader?.querySelector('.site-loader-status');
     let pageLoaded = document.readyState === 'complete';
     let fontsLoaded = !document.fonts;
-    let avatarLoaded = reducedMotion;
+    let avatarIntroReady = reducedMotion;
+    let avatarAssetsReady = reducedMotion;
     const finishLoading = () => {
-      if (!siteLoader || !pageLoaded || !fontsLoaded || !avatarLoaded) return;
+      if (!siteLoader || !pageLoaded || !fontsLoaded || !avatarIntroReady || !avatarAssetsReady) return;
       siteLoader.classList.add('is-done');
       siteLoader.addEventListener('transitionend', () => siteLoader.remove(), { once: true });
     };
-    window.addEventListener('load', () => { pageLoaded = true; finishLoading(); }, { once: true });
+    window.addEventListener('load', () => { pageLoaded = true; if (loaderStatus) loaderStatus.textContent = 'FINISHING THE SCENE'; finishLoading(); }, { once: true });
     if (document.fonts) document.fonts.ready.then(() => { fontsLoaded = true; finishLoading(); });
-    window.addEventListener('avatarintrocomplete', () => { avatarLoaded = true; finishLoading(); }, { once: true });
+    window.addEventListener('avatarassetsready', () => { avatarAssetsReady = true; if (loaderStatus) loaderStatus.textContent = 'ANIMATION READY'; finishLoading(); }, { once: true });
+    window.addEventListener('avatarintrocomplete', () => { avatarIntroReady = true; finishLoading(); }, { once: true });
     finishLoading();
     const skillGroups = [
       { name: 'MARKETING', color: '#2c63df', icon: '<path d="M4 12h5l10-5v10L9 12H4z"/><path d="M9 12l2 7H8l-2-7M22 9v6M2 10v4"/>', skills: ['Digital Marketing', 'Social Media', 'Content Research', 'Influencer Research'] },
