@@ -28,7 +28,10 @@ const stage = document.querySelector('[data-avatar-stage]');
 if (stage) {
   const canvas = stage.querySelector('canvas');
   const fallback = stage.querySelector('.avatar-fallback');
-  const context = canvas.getContext('2d', { alpha: true, desynchronized: true });
+  // Keep the compositor on the browser's normal, synchronized path. Some
+  // mobile GPUs can present a partially-cleared video frame when a
+  // desynchronized canvas is seeked repeatedly by ScrollTrigger.
+  const context = canvas.getContext('2d', { alpha: true });
   const motionQuery = matchMedia('(prefers-reduced-motion: reduce)');
   const hero = document.querySelector('.hero');
   const cache = new Map();
@@ -148,6 +151,7 @@ if (stage) {
 
   function drawImage(image) {
     setCanvasScale();
+    context.globalCompositeOperation = 'source-over';
     context.clearRect(0, 0, canvas.width, canvas.height);
     context.drawImage(image, 0, 0, canvas.width, canvas.height);
     stage.classList.add('is-ready');
@@ -325,14 +329,23 @@ if (stage) {
     if (!windVideoReady || windVideoFailed || windVideo.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) return false;
     setCanvasScale();
     try {
+      context.globalCompositeOperation = 'copy';
       context.clearRect(0, 0, canvas.width, canvas.height);
       context.drawImage(windVideo, 320, 0, 640, 720, 0, 0, canvas.width, canvas.height);
       const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
       removeVideoBackdrop(imageData);
       context.putImageData(imageData, 0, 0);
+      context.globalCompositeOperation = 'source-over';
       stage.classList.add('is-ready');
       return true;
     } catch {
+      // Never leave the raw video frame on screen if a device rejects a
+      // readback or presents a transient decode surface. Falling back to the
+      // decoded portrait is preferable to exposing the video's background.
+      context.globalCompositeOperation = 'copy';
+      context.clearRect(0, 0, canvas.width, canvas.height);
+      context.globalCompositeOperation = 'source-over';
+      stage.classList.remove('is-ready');
       return false;
     }
   }
