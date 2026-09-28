@@ -1,9 +1,13 @@
 const CONFIG = Object.freeze({
   introDelayMs: 480,
   introDurationMs: 2400,
-  maxDpr: 1.5,
+  // The source is 640x720. Rendering above native source resolution only
+  // multiplies the expensive matte readback on high-DPR phones and causes
+  // seek frames to miss their paint deadline.
+  maxDpr: 1,
   cacheSize: 80,
-  windPeakProgress: .78,
+  // Scrub the complete source video across the complete hero timeline.
+  windPeakProgress: 1,
   frameRoot: 'avatar/frames',
   windVideo: 'avatar/raining%20wind.mp4',
   backdropKey: Object.freeze({
@@ -41,7 +45,6 @@ if (stage) {
   windVideo.muted = true;
   windVideo.playsInline = true;
   windVideo.disablePictureInPicture = true;
-  windVideo.src = CONFIG.windVideo;
   let windVideoReady = false;
   let windVideoFailed = false;
   let windBlobFallbackStarted = false;
@@ -352,10 +355,11 @@ if (stage) {
 
   function paintWindFrame() {
     if (!windVideoReady || windVideoFailed || videoPaintRequest) return;
-    const paint = () => {
+    const paint = (now, metadata) => {
       videoPaintRequest = 0;
       if (!state.visible || state.phase === 'intro' || !windVideoReady) return;
-      if (Math.abs(windVideo.currentTime - requestedWindTime) > 1 / 48) {
+      const decodedTime = Number.isFinite(metadata?.mediaTime) ? metadata.mediaTime : windVideo.currentTime;
+      if (Math.abs(decodedTime - requestedWindTime) > 1 / 30) {
         scheduleWindSeek();
         return;
       }
@@ -543,7 +547,9 @@ if (stage) {
     if (windObjectUrl) URL.revokeObjectURL(windObjectUrl);
     if (videoPaintRequest && typeof windVideo.cancelVideoFrameCallback === 'function') windVideo.cancelVideoFrameCallback(videoPaintRequest);
   }, { once: true });
-  windVideo.load();
+  // Fetch the complete file once before exposing the animation. This avoids
+  // a partial network load followed by a second seekable download.
+  loadSeekableWindBlob();
 
   preloadVerticalFrames().then(() => {
     verticalFramesReady = true;
