@@ -4,7 +4,7 @@ const CONFIG = Object.freeze({
   // The source is 640x720. Rendering above native source resolution only
   // multiplies the expensive matte readback on high-DPR phones and causes
   // seek frames to miss their paint deadline.
-  maxDpr: 1,
+  maxDpr: 1.25,
   cacheSize: 80,
   // Scrub the complete source video across the complete hero timeline.
   windPeakProgress: 1,
@@ -38,6 +38,8 @@ if (stage) {
   // The wind matte reads every decoded frame back for transparency. Asking
   // for a readback-friendly context avoids GPU stalls on slower laptops.
   const context = canvas.getContext('2d', { alpha: true, willReadFrequently: true });
+  context.imageSmoothingEnabled = true;
+  context.imageSmoothingQuality = 'high';
   const motionQuery = matchMedia('(prefers-reduced-motion: reduce)');
   const hero = document.querySelector('.hero');
   const cache = new Map();
@@ -143,7 +145,8 @@ if (stage) {
 
   function setCanvasScale() {
     if (!canvasSizeDirty) return;
-    const dpr = Math.min(window.devicePixelRatio || 1, CONFIG.maxDpr);
+    const mobileCap = window.innerWidth < 900 ? 1 : CONFIG.maxDpr;
+    const dpr = Math.min(window.devicePixelRatio || 1, mobileCap);
     const bounds = canvas.getBoundingClientRect();
     const width = Math.min(640, Math.max(1, Math.round(bounds.width * dpr)));
     const height = Math.min(720, Math.max(1, Math.round(bounds.height * dpr)));

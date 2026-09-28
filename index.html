@@ -46,6 +46,14 @@
     .nav-status { border-bottom: 1px solid currentColor; padding-bottom: 3px; }
     .hero { position: relative; overflow: clip; min-height: 100dvh; margin-top: calc(0px - var(--nav-height)); padding: calc(38px + var(--nav-height)) 0 32px; background: var(--paper); }
     .hero-grid-plane { position: absolute; z-index: 0; top: calc(0px - var(--grid-plane-overscan)); right: auto; bottom: auto; left: 50%; width: 100vw; height: calc(100dvh + var(--grid-plane-overscan) + var(--grid-plane-overscan)); margin-left: -50vw; pointer-events: none; background-image: linear-gradient(to right, var(--line) 1px, transparent 1px), linear-gradient(to bottom, var(--line) 1px, transparent 1px); background-size: var(--grid-column-size) 100%, 100% var(--grid-row-size); background-position: 0 0, 0 var(--grid-plane-overscan); will-change: transform; }
+    .hero-grid-kinetic { --grid-row-1: var(--grid-row-size); --grid-row-2: calc(var(--grid-row-size) + var(--grid-row-size)); --grid-row-4: calc(var(--grid-row-2) + var(--grid-row-2)); --grid-row-6: calc(var(--grid-row-4) + var(--grid-row-2)); position: absolute; z-index: 1; inset: 0; overflow: hidden; color: var(--muted); opacity: .34; pointer-events: none; will-change: opacity, filter; }
+    .hero-grid-link { position: absolute; display: block; height: 1px; background: currentColor; opacity: .34; transform-origin: left center; will-change: transform, opacity; }
+    .hero-grid-link.vertical { width: 1px; height: auto; transform-origin: center top; }
+    .hero-grid-link.accent { color: var(--accent); opacity: .5; }
+    .hero-grid-node { position: absolute; display: block; width: 4px; height: 4px; border-radius: 50%; background: currentColor; opacity: .38; transform: translate(-50%, -50%); will-change: transform, opacity; }
+    .hero-grid-node.strong { width: 6px; height: 6px; opacity: .58; }
+    .hero-grid-node.accent { background: var(--accent); opacity: .66; }
+    .hero-grid-pulse { position: absolute; display: block; width: 42px; height: 2px; background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--accent) 75%, transparent), transparent); opacity: 0; transform-origin: left center; will-change: transform, opacity; }
     .hero.is-scene-pinned { overflow: visible; }
     .hero.is-scene-pinned .hero-grid-plane { background-color: var(--paper); }
     .hero-star-field { position: absolute; z-index: 3; top: 0; left: 50%; width: 100vw; height: 100dvh; overflow: hidden; transform: translateX(-50%); color: var(--ink); pointer-events: none; }
@@ -98,8 +106,10 @@
     .about-copy-panel, .experience-panel { position: absolute; top: 50%; transform: translateY(-50%); }
     .about-copy-panel { left: 0; width: 41%; }
     .experience-panel { left: 86%; width: 39%; }
-    .about-eyebrow { margin: 0 0 34px; font: 650 clamp(13px, 1.15vw, 16px)/1.2 "Helvetica Neue", Arial, sans-serif; letter-spacing: .015em; }
-    .about-quote { margin: 0; font-size: clamp(2rem, 2.75vw, 2.8rem); line-height: 1.04; letter-spacing: -.065em; font-weight: 650; }
+    .about-eyebrow { margin: 0 0 34px; color: var(--accent); font: 650 clamp(13px, 1.15vw, 16px)/1.2 "Helvetica Neue", Arial, sans-serif; letter-spacing: .015em; }
+    .about-quote { margin: 0; color: var(--ink); font-size: clamp(2rem, 2.75vw, 2.8rem); line-height: 1.04; letter-spacing: -.065em; font-weight: 650; }
+    .about-quote-main, .about-quote-soft { display: block; }
+    .about-quote-soft { margin-top: .9em; color: var(--muted); }
     .about-study { margin: 36px 0 0; color: var(--accent); font: 600 12px/1.5 monospace; letter-spacing: .025em; }
     .experience-header { display: flex; align-items: flex-end; justify-content: space-between; gap: 22px; margin-bottom: 22px; }
     .experience-eyebrow { max-width: 11ch; margin: 0; font-size: clamp(2.3rem, 4vw, 3.65rem); line-height: .88; letter-spacing: -.075em; font-weight: 700; }
@@ -387,7 +397,32 @@
   <nav class="nav" aria-label="Primary navigation"><a class="nav-brand" href="#top">jayanth</a><div class="nav-links"><a href="#work">Work</a><a href="#about">About</a><a href="#contact">Contact</a></div><div class="nav-actions"><a class="nav-status" href="#contact">Open to work</a></div></nav>
   <main id="top">
     <section class="hero shell">
-      <div class="hero-grid-plane" aria-hidden="true"></div>
+      <div class="hero-grid-plane" aria-hidden="true">
+        <div class="hero-grid-kinetic" data-hero-grid-kinetic>
+          <span class="hero-grid-link" data-grid-link style="left:0%;top:calc(var(--grid-plane-overscan) + var(--grid-row-2));width:50%"></span>
+          <span class="hero-grid-link accent" data-grid-link style="left:50%;top:calc(var(--grid-plane-overscan) + var(--grid-row-2));width:25%"></span>
+          <span class="hero-grid-link" data-grid-link style="left:25%;top:calc(var(--grid-plane-overscan) + var(--grid-row-4));width:50%"></span>
+          <span class="hero-grid-link" data-grid-link style="left:0%;top:calc(var(--grid-plane-overscan) + var(--grid-row-6));width:25%"></span>
+          <span class="hero-grid-link accent" data-grid-link style="left:50%;top:calc(var(--grid-plane-overscan) + var(--grid-row-6));width:50%"></span>
+          <span class="hero-grid-link vertical" data-grid-link style="left:25%;top:calc(var(--grid-plane-overscan) + var(--grid-row-1));height:var(--grid-row-2)"></span>
+          <span class="hero-grid-link vertical accent" data-grid-link style="left:50%;top:calc(var(--grid-plane-overscan) + var(--grid-row-2));height:var(--grid-row-2)"></span>
+          <span class="hero-grid-link vertical" data-grid-link style="left:75%;top:calc(var(--grid-plane-overscan) + var(--grid-row-4));height:var(--grid-row-2)"></span>
+          <span class="hero-grid-node" data-grid-node style="left:25%;top:calc(var(--grid-plane-overscan) + var(--grid-row-1))"></span>
+          <span class="hero-grid-node strong" data-grid-node style="left:50%;top:calc(var(--grid-plane-overscan) + var(--grid-row-1))"></span>
+          <span class="hero-grid-node accent" data-grid-node style="left:75%;top:calc(var(--grid-plane-overscan) + var(--grid-row-1))"></span>
+          <span class="hero-grid-node" data-grid-node style="left:0%;top:calc(var(--grid-plane-overscan) + var(--grid-row-2))"></span>
+          <span class="hero-grid-node accent" data-grid-node style="left:50%;top:calc(var(--grid-plane-overscan) + var(--grid-row-2))"></span>
+          <span class="hero-grid-node strong" data-grid-node style="left:100%;top:calc(var(--grid-plane-overscan) + var(--grid-row-2))"></span>
+          <span class="hero-grid-node strong" data-grid-node style="left:25%;top:calc(var(--grid-plane-overscan) + var(--grid-row-4))"></span>
+          <span class="hero-grid-node" data-grid-node style="left:75%;top:calc(var(--grid-plane-overscan) + var(--grid-row-4))"></span>
+          <span class="hero-grid-node accent" data-grid-node style="left:0%;top:calc(var(--grid-plane-overscan) + var(--grid-row-6))"></span>
+          <span class="hero-grid-node" data-grid-node style="left:50%;top:calc(var(--grid-plane-overscan) + var(--grid-row-6))"></span>
+          <span class="hero-grid-node strong" data-grid-node style="left:100%;top:calc(var(--grid-plane-overscan) + var(--grid-row-6))"></span>
+          <span class="hero-grid-pulse" data-grid-pulse style="left:25%;top:calc(var(--grid-plane-overscan) + var(--grid-row-2))"></span>
+          <span class="hero-grid-pulse" data-grid-pulse style="left:50%;top:calc(var(--grid-plane-overscan) + var(--grid-row-4))"></span>
+          <span class="hero-grid-pulse" data-grid-pulse style="left:0%;top:calc(var(--grid-plane-overscan) + var(--grid-row-6))"></span>
+        </div>
+      </div>
       <div class="hero-star-field" data-hero-star-field aria-hidden="true"></div>
       <h1 class="hero-lockup" aria-label="jayanth"><span class="hero-title-note hero-fade">HEY, I'M</span><span class="letter soft">j</span><span class="letter">a</span><span class="letter">y</span><span class="letter blue">a</span><span class="letter">n</span><span class="letter">t</span><span class="letter">h</span></h1>
       <div class="hero-floor">
@@ -456,9 +491,8 @@
         </figure>
         <div class="about-rail" data-about-rail>
           <article class="about-copy-panel">
-            <h2 class="about-eyebrow">A little about me</h2>
-            <p class="about-quote">"I like understanding how things work,<br>finding where they can work better,<br>and figuring out how the pieces come together."</p>
-            <p class="about-study">Interested in operations and marketing</p>
+            <h2 class="about-eyebrow">A LITTLE ABOUT ME</h2>
+            <p class="about-quote"><span class="about-quote-main">I like figuring things out.<br>How a business works. How a website should feel.<br>Where something can be simpler, sharper, or just more interesting.</span><span class="about-quote-soft">I study business, but I don’t really like keeping things in one box.<br>I design, build, experiment, and sometimes end up making something I didn’t plan to make.</span></p>
           </article>
           <article class="experience-panel">
             <header class="experience-header">
@@ -966,6 +1000,10 @@
         const hero = document.querySelector('.hero');
         const avatar = document.querySelector('.placeholder-art');
         const gridPlane = document.querySelector('.hero-grid-plane');
+        const kineticGrid = document.querySelector('[data-hero-grid-kinetic]');
+        const kineticNodes = gsap.utils.toArray('[data-grid-node]', kineticGrid);
+        const kineticLinks = gsap.utils.toArray('[data-grid-link]', kineticGrid);
+        const kineticPulses = gsap.utils.toArray('[data-grid-pulse]', kineticGrid);
         const particles = gsap.utils.toArray('.wind-particle');
         const scene = Object.freeze({ windStart: .04, nameStart: .11, lookStart: 0, fallStart: .43, nameEnd: .70, detailsStart: .30, detailsEnd: .76, avatarExit: .86, cloudStart: .035, cloudReady: .34, cloudFall: .43, cloudFade: .51, cloudGone: .63, starRevealStart: .12, starRevealEnd: .38, starStart: .84, starEnd: 1, gridSettle: .88 });
         const avatarVisual = { progress: 0 };
@@ -1035,6 +1073,56 @@
 
         heroTransition.to(gridPlane, { y: () => getGridMotion().travel * scene.gridSettle, duration: scene.avatarExit, ease: 'power2.in' }, 0);
         heroTransition.to(gridPlane, { y: () => getGridMotion().travel, duration: 1 - scene.avatarExit, ease: 'power1.out' }, scene.avatarExit);
+        if (kineticGrid) {
+          heroTransition.fromTo(kineticGrid,
+            { autoAlpha: .34, filter: 'blur(0px)' },
+            { autoAlpha: .72, filter: 'blur(0px)', duration: .28, ease: 'none', immediateRender: false },
+            .12,
+          );
+          kineticLinks.forEach((link, index) => {
+            const stretch = link.classList.contains('vertical') ? 'scaleY' : 'scaleX';
+            heroTransition.fromTo(link,
+              { autoAlpha: index % 3 === 0 ? .14 : .08, [stretch]: .72 },
+              { autoAlpha: index % 3 === 0 ? .62 : .42, [stretch]: 1, duration: .24, ease: 'none', immediateRender: false },
+              .16 + index * .018,
+            );
+            heroTransition.to(link, { [stretch]: 1.018, duration: .24, ease: 'sine.inOut' }, scene.fallStart + .04 + (index % 3) * .02);
+            heroTransition.to(link, { [stretch]: 1, duration: .24, ease: 'sine.inOut' }, scene.fallStart + .28 + (index % 3) * .02);
+          });
+          kineticNodes.forEach((node, index) => {
+            const nudgeX = index % 3 === 0 ? -2.5 : index % 3 === 1 ? 1.8 : 2.8;
+            const nudgeY = index % 2 ? -2.2 : 2.6;
+            heroTransition.fromTo(node,
+              { autoAlpha: index % 4 === 0 ? .24 : .12, scale: index % 3 === 0 ? .64 : .76 },
+              { autoAlpha: index % 4 === 0 ? .76 : .46, scale: 1, duration: .22, ease: 'none', immediateRender: false },
+              .08 + index * .012,
+            );
+            heroTransition.to(node, { x: nudgeX, y: nudgeY, scale: 1.08, duration: .22, ease: 'sine.inOut' }, scene.fallStart + (index % 4) * .014);
+            heroTransition.to(node, { x: 0, y: 0, scale: 1, duration: .24, ease: 'sine.inOut' }, scene.fallStart + .25 + (index % 4) * .014);
+          });
+          const pulseDirections = [1, -1, 1];
+          kineticPulses.forEach((pulse, index) => {
+            const pulseStart = [ .23, .46, .69 ][index] ?? .23;
+            const direction = pulseDirections[index] || 1;
+            heroTransition.fromTo(pulse,
+              { autoAlpha: 0, x: 0, scaleX: .45 },
+              { autoAlpha: .78, x: 0, scaleX: 1, duration: .07, ease: 'none', immediateRender: false },
+              pulseStart,
+            );
+            heroTransition.to(pulse, {
+              autoAlpha: 0,
+              x: () => direction * Math.max(78, Math.min(170, window.innerWidth * .16)),
+              duration: .2,
+              ease: 'none',
+            }, pulseStart + .07);
+          });
+          heroTransition.to(kineticGrid, {
+            autoAlpha: 0,
+            filter: 'blur(1.5px)',
+            duration: .16,
+            ease: 'none',
+          }, .79);
+        }
         heroTransition.to('.hero-note.right', { y: -5, x: -5, duration: .24, ease: 'none' }, .02);
         heroTransition.fromTo('.hero-note-role',
           { x: 8, y: 4, autoAlpha: .6, filter: 'blur(2px)' },
