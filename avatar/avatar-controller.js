@@ -12,10 +12,10 @@ const CONFIG = Object.freeze({
     sampleMin: 205,
     sampleChroma: 28,
     floodMin: 108,
-    floodChroma: 42,
-    floodDistance: 124,
-    transparentDistance: 5,
-    opaqueDistance: 82,
+    floodChroma: 60,
+    floodDistance: 170,
+    transparentDistance: 28,
+    opaqueDistance: 100,
   }),
   colorGain: Object.freeze([1.013, 1.01, 1.015]),
 });
@@ -44,6 +44,7 @@ if (stage) {
   let windBlobFallbackStarted = false;
   let windObjectUrl = '';
   let windRaf = 0;
+  let videoPaintRequest = 0;
   let requestedWindTime = -1;
   let canvasSizeDirty = true;
   let matteMask = new Uint8Array(0);
@@ -336,6 +337,24 @@ if (stage) {
     }
   }
 
+  function paintWindFrame() {
+    if (!windVideoReady || windVideoFailed || videoPaintRequest) return;
+    const paint = () => {
+      videoPaintRequest = 0;
+      if (!state.visible || state.phase === 'intro' || !windVideoReady) return;
+      if (Math.abs(windVideo.currentTime - requestedWindTime) > 1 / 48) {
+        scheduleWindSeek();
+        return;
+      }
+      drawWindVideo();
+    };
+    if (typeof windVideo.requestVideoFrameCallback === 'function') {
+      videoPaintRequest = windVideo.requestVideoFrameCallback(paint);
+    } else {
+      videoPaintRequest = requestAnimationFrame(paint);
+    }
+  }
+
   function failWindVideo() {
     windVideoFailed = true;
     windVideoReady = false;
@@ -501,7 +520,7 @@ if (stage) {
       requestedWindTime = -1;
       scheduleWindSeek();
     }
-    else drawWindVideo();
+    else paintWindFrame();
   });
   windVideo.addEventListener('error', () => {
     if (windBlobFallbackStarted) failWindVideo();
@@ -509,6 +528,7 @@ if (stage) {
   });
   window.addEventListener('pagehide', () => {
     if (windObjectUrl) URL.revokeObjectURL(windObjectUrl);
+    if (videoPaintRequest && typeof windVideo.cancelVideoFrameCallback === 'function') windVideo.cancelVideoFrameCallback(videoPaintRequest);
   }, { once: true });
   windVideo.load();
 
